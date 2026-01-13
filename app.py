@@ -187,13 +187,13 @@ def main():
         df.index = range(1, len(df) + 1)
 
         # ★ 興味ありの値を置き換える（1 → 文字列、0 → 空欄）
-        df["興味あり"] = df["興味あり"].apply(
-            lambda x: "元々興味のあった観点" if x == 1 else ""
+        df["元々興味あり"] = df["元々興味あり"].apply(
+            lambda x: "元々興味あり" if x == 1 else ""
         )
 
         # ★ 強調スタイル（"元々興味のあった観点" のときだけ太字＋赤）
         def highlight_interest(val):
-            if val == "元々興味のあった観点":
+            if val == "元々興味あり":
                 return "font-weight: bold; color: #d9534f;"
             return ""
 
