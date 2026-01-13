@@ -1,0 +1,6 @@
+user_id,condition,is_aspect,top_k,selected_viewpoints,visited_spots,spot_feedback,satisfaction,novelty,discovery,timestamp
+ea7dcadd-a41d-4606-b93e-0c7f77e9d6f0,noaspect_top10,False,10,"神社・寺院・教会,集落・街",浅草寺,"{'浅草寺': {'overall': '良かった', 'viewpoints': []}}",3,4,3,2026-01-09T15:13:27.217204
+5e42ff76-f995-4d34-abb7-c5843e49c2fa,aspect_top10,True,10,"神社・寺院・教会,城跡・城郭・宮殿","浅草寺,東京駅","{'浅草寺': {'overall': '良かった', 'viewpoints': ['河川・峡谷']}, '東京駅': {'overall': '悪かった', 'viewpoints': ['史跡']}}",4,2,5,2026-01-09T15:23:09.625492
+23066553-3113-4a19-9dee-16ae1fa81871,noaspect_top5,False,5,,羽田空港（東京国際空港）,"{'羽田空港（東京国際空港）': {'overall': '普通', 'viewpoints': []}}",4,3,2,2026-01-09T16:28:19.820856
+06b08c11-1946-4a07-b5f2-9d97d6d2d7c6,aspect_top5,True,5,,"浅草寺,羽田空港（東京国際空港）,東京駅,東京ソラマチ,アメ横","{'浅草寺': {'viewpoints': ['岩石・洞窟']}, '羽田空港（東京国際空港）': {'viewpoints': ['海岸・岬']}, '東京駅': {'viewpoints': ['岩石・洞窟']}, '東京ソラマチ': {'viewpoints': ['河川・峡谷']}, 'アメ横': {'viewpoints': ['テーマ公園・テーマ施設']}}",3,3,3,2026-01-09T17:15:26.838888
+dec83af1-42d0-4239-a06c-d5d7209d176d,ああ,noaspect_top10,False,10,,浅草寺,{'浅草寺': {'viewpoints': []}},3,3,3,2026-01-09T17:46:48.227684
