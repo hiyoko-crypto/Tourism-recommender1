@@ -187,7 +187,7 @@ def main():
         df.index = range(1, len(df) + 1)
 
         # ★ 興味ありの値を置き換える（1 → 文字列、0 → 空欄）
-        df["元々興味あり"] = df["興味あり"].apply(
+        df["興味あり"] = df["興味あり"].apply(
             lambda x: "元々興味あり" if x == 1 else ""
         )
 
