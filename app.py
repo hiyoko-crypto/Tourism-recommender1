@@ -146,7 +146,7 @@ def main():
         if st.button("次へ"):
 
             # ★ ちょうど5件チェック ★ 
-            if len(visited_spots) != 1:
+            if len(visited_spots) != 5:
                 st.error(f"観光地をちょうど 5 件選択してください。（現在: {len(visited_spots)} 件）") 
                 st.stop() 
 
