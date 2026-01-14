@@ -126,7 +126,7 @@ def main():
         for region, spots in spot_lists.items():
             with st.expander(region):
                 for i, spot in enumerate(spots):
-                    checked = st.checkbox(spot, key=f"spot_{region}_{i}")
+                    checked = st.checkbox(spot, key=f"spot_{region}_{spot}")
                     if checked:
                         visited_spots.append(spot)
 
@@ -142,6 +142,16 @@ def main():
                         spot_feedback[spot] = {
                             "viewpoints": viewpoints
                         }
+
+        # 右上に選択数を表示
+        col_left, col_right = st.columns([1, 1])
+        with col_right:
+            st.markdown(
+                f"<div style='text-align: right; font-size: 18px; font-weight: bold;'>"
+                f"現在の選択数：{len(visited_spots)} 件"
+                f"</div>",
+                unsafe_allow_html=True
+            )
 
         if st.button("次へ"):
 
@@ -161,8 +171,14 @@ def main():
             st.session_state.visited_spots = visited_spots
             st.session_state.spot_feedback = spot_feedback
 
-            st.session_state.user_pref = compute_user_preference(
-                visited_spots, spot_feedback, spot_scores, selected_viewpoints
+            top_k = 5 if "top5" in st.session_state.condition else 10
+
+            st.session_state.user_pref, st.session_state.topk_viewpoints = compute_user_preference(
+                visited_spots,
+                spot_feedback,
+                spot_scores,
+                selected_viewpoints,
+                top_k
             )
 
             st.session_state.step = 2
@@ -209,7 +225,8 @@ def main():
         rec_df = recommend_spots(
             st.session_state.user_pref,
             spot_scores,
-            top_k=top_k
+            top_k,
+            st.session_state.topk_viewpoints
         )
 
         st.subheader(f"おすすめ観光地（上位 10 件）")
@@ -239,14 +256,24 @@ def main():
                 # spot_scores から該当スポットの観点スコアを抽出
                 spot_detail = spot_scores[spot_scores["スポット"] == spot].copy()
 
-                # 観点スコアだけ取り出す
-                detail = spot_detail.drop(columns=["スポット"]).T
+                # --- 観点ごとに min-max 正規化 ---
+                viewpoint_cols = [c for c in spot_scores.columns if c != "スポット"]
+
+                df_norm = spot_scores.copy()
+                for col in viewpoint_cols:
+                    col_values = df_norm[col].astype(float)
+                    min_v = col_values.min()
+                    max_v = col_values.max()
+                    if max_v == min_v:
+                        df_norm[col] = 0.5
+                    else:
+                        df_norm[col] = (col_values - min_v) / (max_v - min_v)
+
+                # --- 該当スポットの min-max スコアを表示 ---
+                detail = df_norm[df_norm["スポット"] == spot].drop(columns=["スポット"]).T
                 detail.columns = ["スコア"]
                 detail["スコア"] = detail["スコア"].round(3)
                 detail = detail.sort_values("スコア", ascending=False)
-
-                # 行番号を消す
-                detail.index.name = None
 
                 st.table(detail)
 
