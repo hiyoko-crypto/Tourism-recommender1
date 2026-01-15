@@ -1,19 +1,18 @@
-# streamlit run app.py
 import streamlit as st
 import uuid, random, csv, os
 from datetime import datetime
 
-from utils.load_data import load_all, load_viewpoint_descriptions
+from utils.load_data import load_all, load_viewpoint_descriptions, load_spot_urls
 from utils.scoring import compute_user_preference, recommend_spots
 
 # =====================
 # 条件割り当て（最少条件からランダム）
 # =====================
 CONDITIONS = [
+    "noaspect_all",
+    "aspect_all",
     "aspect_top5",
-    "aspect_top10",
-    "noaspect_top5",
-    "noaspect_top10"
+    "aspect_exclude_interest_top5"
 ]
 
 def get_condition_from_log():
@@ -66,6 +65,7 @@ def main():
     st.title("観光地推薦システム（実験）")
 
     is_aspect = st.session_state.condition.startswith("aspect")
+    spot_url_dict = load_spot_urls()
 
     # =====================
     # Step 0: 説明・同意
@@ -89,11 +89,11 @@ def main():
     viewpoint_descriptions = load_viewpoint_descriptions()
 
     # =====================
-    # Step 1: 入力
+    # Step 1: 興味のある観点 + 行った観光地
     # =====================
     if st.session_state.step == 1:
 
-        st.subheader("興味のある観点を選んでください（複数選択可）")
+        st.subheader("興味のある観点を選んでください（1つ以上選択）")
 
         selected_viewpoints = []
 
@@ -155,12 +155,10 @@ def main():
 
         if st.button("次へ"):
 
-            # ★ ちょうど5件チェック ★ 
             if len(visited_spots) != 5:
                 st.error(f"観光地をちょうど 5 件選択してください。（現在: {len(visited_spots)} 件）") 
                 st.stop() 
 
-            # ★ aspect 条件では観点選択を必須にする 
             if is_aspect: 
                 for spot in visited_spots: 
                     if len(spot_feedback[spot]["viewpoints"]) == 0: 
@@ -186,131 +184,180 @@ def main():
         return
 
     # =====================
-    # Step 2: 推薦 + 評価
+    # Step 2: 推薦 + アンケート（観点スコアはまだ見せない）
     # =====================
     if st.session_state.step == 2:
 
         top_k = 5 if "top5" in st.session_state.condition else 10
 
-        st.subheader("観点スコア（ユーザー嗜好）")
-
-        df = st.session_state.user_pref.copy()
-
-        # 小数点3桁に丸める
-        df["総合スコア"] = df["総合スコア"].round(3)
-
-        # ★ index を 1,2,3… に変更
-        df.index = range(1, len(df) + 1)
-
-        # ★ 興味ありの値を置き換える（1 → 文字列、0 → 空欄）
-        df["興味あり"] = df["興味あり"].apply(
-            lambda x: "元々興味あり" if x == 1 else ""
-        )
-
-        # ★ 強調スタイル（"元々興味のあった観点" のときだけ太字＋赤）
-        def highlight_interest(val):
-            if val == "元々興味あり":
-                return "font-weight: bold; color: #d9534f;"
-            return ""
-
-        styled = (
-            df[["観点", "興味あり", "総合スコア"]]
-            .style
-            .map(highlight_interest, subset=["興味あり"])
-            .set_properties(subset=["観点"], **{"font-weight": "bold"})
-        )
-
-        st.write(styled)
+        st.subheader("おすすめ観光地（上位 10 件）")
 
         rec_df = recommend_spots(
-            st.session_state.user_pref,
-            spot_scores,
-            top_k,
-            st.session_state.topk_viewpoints
+            user_pref_df=st.session_state.user_pref,
+            spot_scores=spot_scores,
+            condition=st.session_state.condition,
+            selected_viewpoints=st.session_state.selected_viewpoints,
+            top_k=top_k
         )
 
-        st.subheader(f"おすすめ観光地（上位 10 件）")
-
         df_rec = rec_df.copy()
-        # ★ index を 1,2,3… に変更
         df_rec.index = range(1, len(df_rec) + 1)
 
-        # 小数点3桁に丸める（必要なら）
         if "スコア" in df_rec.columns:
             df_rec["スコア"] = df_rec["スコア"].round(3)
 
-        # 表示（Styler）
-        styled_rec = df_rec.style
-
-        st.write(styled_rec)
-
-        # 上位10件のスポット名をループ
-        for idx, row in df_rec.iterrows():
-            spot = row["スポット"]
-            score = round(row["スコア"], 3)
-
-            # トグル（expander）
-            with st.expander(f"{idx}. {spot}（スコア: {score}）"):
-                st.write("### 観点スコア")
-
-                # spot_scores から該当スポットの観点スコアを抽出
-                spot_detail = spot_scores[spot_scores["スポット"] == spot].copy()
-
-                # --- 観点ごとに min-max 正規化 ---
-                viewpoint_cols = [c for c in spot_scores.columns if c != "スポット"]
-
-                df_norm = spot_scores.copy()
-                for col in viewpoint_cols:
-                    col_values = df_norm[col].astype(float)
-                    min_v = col_values.min()
-                    max_v = col_values.max()
-                    if max_v == min_v:
-                        df_norm[col] = 0.5
-                    else:
-                        df_norm[col] = (col_values - min_v) / (max_v - min_v)
-
-                # --- 該当スポットの min-max スコアを表示 ---
-                detail = df_norm[df_norm["スポット"] == spot].drop(columns=["スポット"]).T
-                detail.columns = ["スコア"]
-                detail["スコア"] = detail["スコア"].round(3)
-                detail = detail.sort_values("スコア", ascending=False)
-
-                st.table(detail)
+        st.write(df_rec)        
 
         st.markdown("---")
         st.subheader("推薦結果の評価をお願いします")
 
-        sat = st.slider("あなたの好みに合った観光地が推薦されていましたか？", 1, 5, 3)
-        nov = st.slider("予想していなかった意外な観光地が含まれていましたか？", 1, 5, 3)
-        discover = st.slider("知らなかった魅力的な観光地を新しく知ることができましたか？", 1, 5, 3)
+        sat = st.slider("提示された観光地の推薦結果について、全体としてどの程度満足しましたか？", 1, 5, 3)
+        discover = st.slider("推薦結果の中に、これまで知らなかった・考えたことのなかった観光地はありましたか？", 1, 5, 3)
+        st.subheader("各観光地ごとに評価をお願いします")
 
-        st.subheader("下のボタンを押すとページが遷移します")
-        if st.button("送信"):
+        # --- 観点ごとに min-max 正規化（ループ前に実行） ---
+        df_norm = spot_scores.copy()
+        viewpoint_cols = [c for c in df_norm.columns if c != "スポット"]
 
-            save_log({
-                "user_id": st.session_state.user_id,
-                "name": st.session_state.name,
-                "condition": st.session_state.condition,
-                "is_aspect": is_aspect,
-                "top_k": top_k,
-                "selected_viewpoints": ",".join(st.session_state.selected_viewpoints),
-                "visited_spots": ",".join(st.session_state.visited_spots),
-                "spot_feedback": str(st.session_state.spot_feedback),
-                "satisfaction": sat,
-                "novelty": nov,
-                "discovery": discover,
-                "timestamp": datetime.now().isoformat()
-            })
+        for col in viewpoint_cols:
+            col_values = df_norm[col].astype(float)
+            min_v = col_values.min()
+            max_v = col_values.max()
+            if max_v == min_v:
+                df_norm[col] = 0.5
+            else:
+                df_norm[col] = (col_values - min_v) / (max_v - min_v)
 
-            st.success("ご協力ありがとうございました！")
+        # --- 推薦結果の表示 ---
+        for idx, row in df_rec.iterrows():
+            spot = row["スポット"]
+            score = round(row["スコア"], 3)
+
+            # ▼ トグル（観点スコアだけ表示）
+            with st.expander(f"{idx}. {spot}（スコア: {score}）"):
+                st.write("#### 観点スコア")
+
+                detail = (
+                    df_norm[df_norm["スポット"] == spot]
+                    .drop(columns=["スポット"])
+                    .T
+                )
+                detail.columns = ["スコア"]
+                detail["スコア"] = detail["スコア"].round(3)
+                detail = detail.sort_values("スコア", ascending=False).head(5)
+
+                st.table(detail)
+
+                # ▼ 口コミURLを表示
+                if spot in spot_url_dict:
+                    st.markdown(f"**口コミURL：** [こちらをクリック]({spot_url_dict[spot]})")
+                else:
+                    st.caption("口コミURLは登録されていません")
+
+            # ▼ トグルの外に質問を置く（ここがポイント）
+            likability = st.slider(
+                f"{spot} に行ってみたいと思いましたか？",
+                1, 5, 3,
+                key=f"like_{spot}"
+            )
+
+            # 保存用
+            if "spot_questions" not in st.session_state:
+                st.session_state.spot_questions = {}
+
+            st.session_state.spot_questions[spot] = {
+                "likability": likability,
+            }
+
+
+        # 推薦全体に対する評価
+        favor = st.slider(
+            "今回の推薦結果は、あなたの好みや興味に合っていると感じましたか？",
+            1, 5, 3
+        )
+
+        spot_comment = st.text_area(
+            "今回の推薦結果について、良いと感じた点や違和感を覚えた点があれば自由にお書きください。",
+            height=150 
+        )
+
+        if st.button("次へ"):
+            st.session_state.sat = sat
+            st.session_state.discover = discover
+            st.session_state.likability = likability
+            st.session_state.spot_comment = spot_comment
+            st.session_state.favor = favor
             st.session_state.step = 3
             st.rerun()
         return
 
     # =====================
-    # Step 3: 完了画面
+    # Step 3: 観点スコア（種明かし） + アンケート
     # =====================
     if st.session_state.step == 3:
+
+        st.subheader("あなたの好みの観点（推定結果）")
+
+        df = st.session_state.user_pref.copy()
+        df["総合スコア"] = df["総合スコア"].round(3)
+        df.index = range(1, len(df) + 1)
+
+        df = st.session_state.user_pref.copy()
+
+        df["興味あり"] = df["観点"].apply(
+            lambda v: "◯" if v in st.session_state.selected_viewpoints else ""
+        )
+
+        st.table(df[["観点", "総合スコア", "興味あり"]])
+
+        st.markdown("---")
+
+        match = st.slider(
+            "この「あなたの好みの観点」は、あなた自身の認識と一致していると感じましたか？",
+            1, 5, 3
+        )
+        accept = st.slider(
+            "表示された観点の中に、意外だと感じたものはありましたか？",
+            1, 5, 3
+        )
+        friendly = st.slider(
+            "なぜこれらの観光地が推薦されたのか、理解しやすかったですか？",
+            1, 5, 3
+        )
+        aspect_comment = st.text_area(
+            "今回の「あなたの好みの観点」について、良いと感じた点や違和感を覚えた点があれば自由にお書きください。",
+            height=150 
+        )        
+
+
+        if st.button("送信して終了"):
+            save_log({
+                "user_id": st.session_state.user_id,
+                "name": st.session_state.name,
+                "condition": st.session_state.condition,
+                "selected_viewpoints": ",".join(st.session_state.selected_viewpoints),
+                "visited_spots": ",".join(st.session_state.visited_spots),
+                "spot_feedback": str(st.session_state.spot_feedback),
+                "satisfaction": st.session_state.sat,
+                "discovery": st.session_state.discover,
+                "likability": str(st.session_state.likability),
+                "spot_comment": st.session_state.spot_comment,
+                "match": match,
+                "accepet": accept,
+                "friendly": friendly,
+                "aspect_comment": aspect_comment,
+                "timestamp": datetime.now().isoformat()
+            })
+
+            st.success("ご協力ありがとうございました！")
+            st.session_state.step = 4
+            st.rerun()
+        return
+
+    # =====================
+    # Step 4: 完了画面
+    # =====================
+    if st.session_state.step == 4:
         st.success("実験は以上です。ご協力ありがとうございました！")
         return
 
