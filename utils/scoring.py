@@ -17,12 +17,18 @@ def minmax(s: pd.Series):
 from collections import defaultdict
 import pandas as pd
 import numpy as np
+
+from collections import defaultdict
+import pandas as pd
+import numpy as np
+
 def compute_user_preference(
     visited_spots,
     spot_feedback,
     df,
     selected_viewpoints,
-    top_k
+    top_k,
+    condition
 ):
     viewpoint_cols = [c for c in df.columns if c != "スポット"]
 
@@ -38,52 +44,63 @@ def compute_user_preference(
             df_norm[col] = (vals - vals.min()) / (vals.max() - vals.min())
 
     # ============================
-    # 観点ランキング作成
+    # 観点スコア集計（全観点を対象）
     # ============================
     aspect_scores = defaultdict(float)
     boost_rate = 1.2
 
     for spot in visited_spots:
         row = df_norm[df_norm["スポット"] == spot].iloc[0]
-
-        # ★ 各観光地の top-5 観点だけを使う
-        top5 = row[viewpoint_cols].sort_values(ascending=False).head(5).index
-
         good_viewpoints = spot_feedback[spot]["viewpoints"]
 
-        for v in top5:
+        for v in viewpoint_cols:
             score = row[v]
-
-            # ★ top-5 の中で「良かった観点」だけ 1.2 倍
             if v in good_viewpoints:
                 score *= boost_rate
-
             aspect_scores[v] += score
 
-    # ============================
-    # 正規化（線形）
-    # ============================
     aspect_scores = pd.Series(aspect_scores)
     weights = aspect_scores / aspect_scores.sum()
 
     # ============================
-    # 観点ランキングの top-k
+    # 推薦に使う観点の選択（conditionで分岐）
     # ============================
-    topk_viewpoints = (
-        weights.sort_values(ascending=False)
-        .head(top_k)
-        .index
-        .tolist()
-    )
+    if condition == "aspect_top5":
+        topk_viewpoints = (
+            weights.sort_values(ascending=False)
+            .head(top_k)
+            .index
+            .tolist()
+        )
+
+    elif condition == "aspect_exclude_interest_top5":
+        filtered = weights.drop(selected_viewpoints, errors="ignore")
+        topk_viewpoints = (
+            filtered.sort_values(ascending=False)
+            .head(top_k)
+            .index
+            .tolist()
+        )
+
+    elif condition == "aspect_all":
+        topk_viewpoints = list(weights.index)
+
+    elif condition == "noaspect_all":
+        topk_viewpoints = []
+
+    else:
+        raise ValueError("Unknown condition")
 
     # ============================
-    # UI / ログ用
+    # UI / ログ用（観点ランキングは常に全観点）
     # ============================
+    weights_for_ui = weights.sort_values(ascending=False)
+
     result = pd.DataFrame({
-        "観点": weights.index,
-        "総合スコア": weights.values,
-        "興味あり": [1 if v in selected_viewpoints else 0 for v in weights.index]
-    }).sort_values("総合スコア", ascending=False).reset_index(drop=True)
+        "観点": weights_for_ui.index,
+        "総合スコア": weights_for_ui.values,
+        "興味あり": [1 if v in selected_viewpoints else 0 for v in weights_for_ui.index]
+    }).reset_index(drop=True)
 
     return result, topk_viewpoints
 
