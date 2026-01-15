@@ -1,4 +1,5 @@
 import streamlit as st
+import json
 import uuid, random, csv, os
 from datetime import datetime
 
@@ -40,9 +41,6 @@ def get_condition_from_log():
 if "user_id" not in st.session_state:
     st.session_state.user_id = str(uuid.uuid4())
 
-if "condition" not in st.session_state:
-    st.session_state.condition = get_condition_from_log()
-
 if "step" not in st.session_state:
     st.session_state.step = 0
 
@@ -64,7 +62,9 @@ def save_log(data):
 def main():
     st.title("観光地推薦システム（実験）")
 
-    is_aspect = st.session_state.condition.startswith("aspect")
+    is_aspect = False
+    if "condition" in st.session_state:
+        is_aspect = st.session_state.condition.startswith("aspect")
     spot_url_dict = load_spot_urls()
 
     # =====================
@@ -81,6 +81,7 @@ def main():
         if st.checkbox("内容を理解し、同意します"):
             if st.button("実験を開始する"):
                 st.session_state.name = name
+                st.session_state.condition = get_condition_from_log()
                 st.session_state.step = 1
                 st.rerun()
         return
@@ -176,7 +177,8 @@ def main():
                 spot_feedback,
                 spot_scores,
                 selected_viewpoints,
-                top_k
+                top_k,
+                st.session_state.condition
             )
 
             st.session_state.step = 2
@@ -337,13 +339,14 @@ def main():
                 "condition": st.session_state.condition,
                 "selected_viewpoints": ",".join(st.session_state.selected_viewpoints),
                 "visited_spots": ",".join(st.session_state.visited_spots),
-                "spot_feedback": str(st.session_state.spot_feedback),
+                "spot_feedback": json.dumps(st.session_state.spot_feedback, ensure_ascii=False),
+                "spot_questions": json.dumps(st.session_state.spot_questions, ensure_ascii=False),
                 "satisfaction": st.session_state.sat,
                 "discovery": st.session_state.discover,
-                "likability": str(st.session_state.likability),
+                "favor": st.session_state.favor,
                 "spot_comment": st.session_state.spot_comment,
                 "match": match,
-                "accepet": accept,
+                "accept": accept,
                 "friendly": friendly,
                 "aspect_comment": aspect_comment,
                 "timestamp": datetime.now().isoformat()
