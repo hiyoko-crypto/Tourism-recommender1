@@ -14,13 +14,9 @@ def minmax(s: pd.Series):
 # ============================
 # ユーザー嗜好推定
 # ============================
-from collections import defaultdict
 import pandas as pd
 import numpy as np
-
 from collections import defaultdict
-import pandas as pd
-import numpy as np
 
 def compute_user_preference(
     visited_spots,
@@ -44,7 +40,7 @@ def compute_user_preference(
             df_norm[col] = (vals - vals.min()) / (vals.max() - vals.min())
 
     # ============================
-    # 観点スコア集計（全観点を対象）
+    # ユーザ嗜好観点スコア算出
     # ============================
     aspect_scores = defaultdict(float)
     boost_rate = 1.2
@@ -53,17 +49,31 @@ def compute_user_preference(
         row = df_norm[df_norm["スポット"] == spot].iloc[0]
         good_viewpoints = spot_feedback[spot]["viewpoints"]
 
+        # 観光地内での観点順位
+        ranks = (
+            row[viewpoint_cols]
+            .sort_values(ascending=False)
+            .rank(method="first", ascending=False)
+        )
+
         for v in viewpoint_cols:
-            score = row[v]
+            base_score = row[v]
+            rank_factor = 1.0 / ranks[v]
+
+            score = base_score * rank_factor
+
             if v in good_viewpoints:
                 score *= boost_rate
+
             aspect_scores[v] += score
 
     aspect_scores = pd.Series(aspect_scores)
+
+    # 正規化（総和 = 1）
     weights = aspect_scores / aspect_scores.sum()
 
     # ============================
-    # 推薦に使う観点の選択（conditionで分岐）
+    # 推薦に使う観点集合（条件分岐）
     # ============================
     if condition == "aspect_top5":
         topk_viewpoints = (
@@ -92,7 +102,7 @@ def compute_user_preference(
         raise ValueError("Unknown condition")
 
     # ============================
-    # UI / ログ用（観点ランキングは常に全観点）
+    # UI / ログ用（全観点ランキング）
     # ============================
     weights_for_ui = weights.sort_values(ascending=False)
 
@@ -103,7 +113,6 @@ def compute_user_preference(
     }).reset_index(drop=True)
 
     return result, topk_viewpoints
-
 
 
 # ============================
@@ -118,7 +127,9 @@ def recommend_spots(
 ):
     viewpoint_cols = [c for c in spot_scores.columns if c != "スポット"]
 
-    # --- min-max 正規化 ---
+    # ============================
+    # min-max 正規化
+    # ============================
     df_norm = spot_scores.copy()
     for col in viewpoint_cols:
         vals = df_norm[col].astype(float)
@@ -127,10 +138,14 @@ def recommend_spots(
         else:
             df_norm[col] = (vals - vals.min()) / (vals.max() - vals.min())
 
-    # --- ユーザ嗜好（観点ランキング） ---
+    # ============================
+    # ユーザ嗜好重み
+    # ============================
     weights = user_pref_df.set_index("観点")["総合スコア"]
 
-    # --- 条件ごとの観点選択 ---
+    # ============================
+    # 観点集合の選択
+    # ============================
     if condition == "aspect_top5":
         V = set(weights.sort_values(ascending=False).head(top_k).index)
 
@@ -142,38 +157,31 @@ def recommend_spots(
         V = set(weights.index)
 
     elif condition == "noaspect_all":
-        # 観点を使わないベースライン
         results = []
         for _, row in df_norm.iterrows():
             spot = row["スポット"]
             score = row[viewpoint_cols].mean()
             results.append({"スポット": spot, "スコア": score})
-        return pd.DataFrame(results).sort_values("スコア", ascending=False).head(10)
+        return (
+            pd.DataFrame(results)
+            .sort_values("スコア", ascending=False)
+            .head(10)
+        )
 
     else:
         raise ValueError("Unknown condition")
 
-    # --- 観光地スコア計算（方式A） ---
+    # ============================
+    # 観光地スコア計算（rankなし）
+    # ============================
     results = []
-    # spot -> {viewpoint: rank}
-    spot_viewpoint_rank = {}
 
     for _, row in df_norm.iterrows():
         spot = row["スポット"]
-        ranks = (
-            row[viewpoint_cols]
-            .sort_values(ascending=False)
-            .rank(method="first", ascending=False)
-            .astype(int)
-        )
-        spot_viewpoint_rank[spot] = ranks.to_dict()
-
         score = 0.0
-        for v in V:
-            rank = spot_viewpoint_rank[spot][v]
-            rank_factor = 1.0 / rank   # ← ここだけ追加
 
-            score += row[v] * weights[v] * rank_factor
+        for v in V:
+            score += weights[v] * row[v]
 
         results.append({"スポット": spot, "スコア": score})
 
