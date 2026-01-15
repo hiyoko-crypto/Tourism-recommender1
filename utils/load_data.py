@@ -21,6 +21,24 @@ def load_all():
 
     return viewpoint_list, spot_lists, spot_scores
 
+def load_spot_urls():
+    files = [
+        "data/jalan_spots_tokyo.csv",
+        "data/jalan_spots_kansai.csv",
+        "data/jalan_spots_tyugoku.csv"
+    ]
+
+    url_dict = {}
+
+    for file in files:
+        df = pd.read_csv(file)
+        for _, row in df.iterrows():
+            spot = row["スポット"]
+            url = row["URL"]
+            url_dict[spot] = url
+
+    return url_dict
+
 def load_viewpoint_descriptions():
     return {
         "山岳": "2万5千分の1の地形図に山岳として名称が記載されているもので、観光的に魅力のあるもの。山岳の範囲は、山頂、山腹、山麓・すそ野を含めた広い範囲とする。",
