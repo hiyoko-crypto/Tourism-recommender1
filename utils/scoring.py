@@ -114,7 +114,8 @@ def recommend_spots(
     spot_scores,
     condition,
     selected_viewpoints,
-    top_k=5
+    top_k=5,
+    condition
 ):
     viewpoint_cols = [c for c in spot_scores.columns if c != "スポット"]
 
