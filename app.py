@@ -345,6 +345,10 @@ def main():
                 "discovery": st.session_state.discover,
                 "favor": st.session_state.favor,
                 "spot_comment": st.session_state.spot_comment,
+                "user_pref_ranking": json.dumps(
+                    st.session_state.user_pref.to_dict(orient="records"),
+                    ensure_ascii=False
+                ),
                 "match": match,
                 "accept": accept,
                 "friendly": friendly,
