@@ -115,7 +115,9 @@ def main():
         回答は匿名で収集され、個人が特定されることはありません。
         所要時間は約5〜7分です。
         """)
+        st.subheader("参加者情報の入力")
         name = st.text_input("お名前（ニックネーム可）を入力してください")
+        age_group = st.selectbox( "年代を選択してください", ["10代", "20代", "30代", "40代", "50代", "60代以上"] )
         if st.checkbox("内容を理解し、同意します"):
             if st.button("実験を開始する"):
                 st.session_state.name = name
@@ -251,8 +253,6 @@ def main():
         st.markdown("---")
         st.subheader("推薦結果の評価をお願いします")
 
-        sat = st.slider("提示された観光地の推薦結果について、全体としてどの程度満足しましたか？", 1, 5, 3)
-        discover = st.slider("推薦結果の中に、これまで知らなかった・考えたことのなかった観光地はありましたか？", 1, 5, 3)
         st.subheader("各観光地ごとに評価をお願いします")
 
         # --- 観点ごとに min-max 正規化（ループ前に実行） ---
@@ -311,10 +311,14 @@ def main():
 
 
         # 推薦全体に対する評価
+        st.subheader("ここからは推薦全体に対して評価していただきます")
+        sat = st.slider("提示された観光地の推薦結果について、全体としてどの程度満足しましたか？", 1, 5, 3)
+        discover = st.slider("推薦結果の中に、これまで知らなかった・考えたことのなかった観光地はありましたか？", 1, 5, 3)        
         favor = st.slider(
             "今回の推薦結果は、あなたの好みや興味に合っていると感じましたか？",
             1, 5, 3
         )
+        st.markdown("---")
 
         spot_comment = st.text_area(
             "今回の推薦結果について、良いと感じた点や違和感を覚えた点があれば自由にお書きください。",
@@ -374,6 +378,7 @@ def main():
             save_log({
                 "user_id": st.session_state.user_id,
                 "name": st.session_state.name,
+                "age_group": st.session_state.age_group,
                 "condition": st.session_state.condition,
                 "selected_viewpoints": ",".join(st.session_state.selected_viewpoints),
                 "visited_spots": ",".join(st.session_state.visited_spots),
