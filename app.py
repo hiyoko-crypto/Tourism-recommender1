@@ -17,23 +17,37 @@ CONDITIONS = [
 ]
 
 def get_condition_from_log():
-    if not os.path.exists("experiment_log.csv"):
+    # Google Sheets 認証
+    scope = ["https://spreadsheets.google.com/feeds",
+             "https://www.googleapis.com/auth/drive"]
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(
+        st.secrets["gcp_service_account"], scope
+    )
+    client = gspread.authorize(creds)
+
+    # スプレッドシートを開く
+    sheet = client.open_by_key(st.secrets["sheet_id"]).sheet1
+
+    # 全データ取得
+    rows = sheet.get_all_records()
+
+    # ログがまだ無い場合
+    if len(rows) == 0:
         return random.choice(CONDITIONS)
 
+    # 条件のカウント
     counts = {c: 0 for c in CONDITIONS}
 
-    with open("experiment_log.csv", "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            cond = row.get("condition")
-            if cond in counts:
-                counts[cond] += 1
+    for row in rows:
+        cond = row.get("condition")
+        if cond in counts:
+            counts[cond] += 1
 
+    # 最小値の条件を選ぶ
     min_count = min(counts.values())
     candidates = [c for c, v in counts.items() if v == min_count]
 
     return random.choice(candidates)
-
 
 # =====================
 # 初期化
