@@ -26,7 +26,9 @@ def get_condition_from_log():
     client = gspread.authorize(creds)
 
     # スプレッドシートを開く
-    sheet = client.open_by_key(st.secrets["sheet_id"]).sheet1
+    sheet = client.open_by_key(
+        st.secrets["gcp_service_account"]["sheet_id"]
+    ).sheet1
 
     # 全データ取得
     rows = sheet.get_all_records()
@@ -75,7 +77,9 @@ def save_log(data):
     client = gspread.authorize(creds)
 
     # スプレッドシートを開く
-    sheet = client.open_by_key(st.secrets["sheet_id"]).sheet1
+    sheet = client.open_by_key(
+        st.secrets["gcp_service_account"]["sheet_id"]
+    ).sheet1
 
     # ヘッダーがなければ作成
     existing = sheet.get_all_values()
@@ -90,7 +94,6 @@ def save_log(data):
 # メイン処理
 # =====================
 def main():
-    st.write(st.secrets)
 
     st.title("観光地推薦システム（実験）")
 
