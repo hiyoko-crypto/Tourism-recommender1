@@ -90,6 +90,8 @@ def save_log(data):
 # メイン処理
 # =====================
 def main():
+    st.write(st.secrets)
+
     st.title("観光地推薦システム（実験）")
 
     is_aspect = False
