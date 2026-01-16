@@ -5,6 +5,9 @@ from datetime import datetime
 
 from utils.load_data import load_all, load_viewpoint_descriptions, load_spot_urls
 from utils.scoring import compute_user_preference, recommend_spots
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+
 
 # =====================
 # 条件割り当て（最少条件からランダム）
@@ -15,6 +18,7 @@ CONDITIONS = [
     "aspect_top5",
     "aspect_exclude_interest_top5"
 ]
+
 
 def get_condition_from_log():
     # Google Sheets 認証
@@ -94,9 +98,6 @@ def save_log(data):
 # メイン処理
 # =====================
 def main():
-    st.write(st.secrets.keys())
-    st.write(st.secrets["gcp_service_account"].keys())
-
     st.title("観光地推薦システム（実験）")
 
     is_aspect = False
