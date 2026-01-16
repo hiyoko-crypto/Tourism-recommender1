@@ -48,12 +48,28 @@ if "step" not in st.session_state:
 # =====================
 # ログ保存
 # =====================
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+
 def save_log(data):
-    with open("experiment_log.csv", "a", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=data.keys())
-        if f.tell() == 0:
-            writer.writeheader()
-        writer.writerow(data)
+    # Google Sheets 認証
+    scope = ["https://spreadsheets.google.com/feeds",
+             "https://www.googleapis.com/auth/drive"]
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(
+        st.secrets["gcp_service_account"], scope
+    )
+    client = gspread.authorize(creds)
+
+    # スプレッドシートを開く
+    sheet = client.open_by_key(st.secrets["sheet_id"]).sheet1
+
+    # ヘッダーがなければ作成
+    existing = sheet.get_all_values()
+    if len(existing) == 0:
+        sheet.append_row(list(data.keys()))
+
+    # データを追加
+    sheet.append_row(list(data.values()))
 
 
 # =====================
