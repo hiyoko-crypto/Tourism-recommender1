@@ -94,6 +94,8 @@ def save_log(data):
 # メイン処理
 # =====================
 def main():
+    st.write(st.secrets.keys())
+    st.write(st.secrets["gcp_service_account"].keys())
 
     st.title("観光地推薦システム（実験）")
 
