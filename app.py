@@ -137,6 +137,7 @@ def main():
         if st.checkbox("内容を理解し、同意します"):
             if st.button("実験を開始する"):
                 st.session_state.name = name
+                st.session_state.age_group = age_group
                 st.session_state.condition = get_condition_from_log()
                 st.session_state.step = 1
                 st.rerun()
