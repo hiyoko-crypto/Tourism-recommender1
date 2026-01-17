@@ -408,9 +408,9 @@ def main():
         st.markdown("---")
         st.table(dfA)
 
-        sat_A = st.slider("A の推薦結果について、全体としてどの程度満足しましたか？", 1, 5, 3, key="sat_A") 
-        discover_A = st.slider("A の推薦結果の中に、知らなかった観光地はありましたか？", 1, 5, 3, key="discover_A") 
-        favor_A = st.slider("A の推薦結果は、あなたの好みや興味に合っていると感じましたか？", 1, 5, 3, key="favor_A")
+        sat_A = st.slider("A の推薦結果について、全体としてどの程度満足しましたか？", 1, 5, 3) 
+        discover_A = st.slider("A の推薦結果の中に、知らなかった観光地はありましたか？", 1, 5, 3) 
+        favor_A = st.slider("A の推薦結果は、あなたの好みや興味に合っていると感じましたか？", 1, 5, 3)
 
         st.markdown("---") 
         # ============================ 
@@ -420,9 +420,9 @@ def main():
         st.markdown("---")
         st.table(dfB)
 
-        sat_B = st.slider("B の推薦結果について、全体としてどの程度満足しましたか？", 1, 5, 3, key="sat_B") 
-        discover_B = st.slider("B の推薦結果の中に、知らなかった観光地はありましたか？", 1, 5, 3, key="discover_B") 
-        favor_B = st.slider("B の推薦結果は、あなたの好みや興味に合っていると感じましたか？", 1, 5, 3, key="favor_B")
+        sat_B = st.slider("B の推薦結果について、全体としてどの程度満足しましたか？", 1, 5, 3) 
+        discover_B = st.slider("B の推薦結果の中に、知らなかった観光地はありましたか？", 1, 5, 3) 
+        favor_B = st.slider("B の推薦結果は、あなたの好みや興味に合っていると感じましたか？", 1, 5, 3)
 
         st.markdown("---")        
         # ============================
@@ -443,14 +443,18 @@ def main():
     
         ab_choice = st.radio(
             "選択してください",
-            ["A の方が良い", "B の方が良い", "どちらとも言えない"],
-            key="ab_choice"
+            [
+                "1: A が強く一致",
+                "2: A がやや一致",
+                "3: どちらとも言えない",
+                "4: B がやや一致",
+                "5: B が強く一致"
+            ]
         )
     
         ab_comment = st.text_area(
             "A/B 比較についてコメントがあれば自由にお書きください",
             height=150,
-            key="ab_comment"
         )
     
         if st.button("次へ"):
@@ -562,7 +566,7 @@ def main():
             horizontal=True,
         )        
         accept_compare = st.radio(
-            "どちらの観点スコアの方が、意外性が少なかったですか？",
+            "どちらの観点スコアの方が、意外性が多かったですか？",
             [
                 "1: A が強く一致",
                 "2: A がやや一致",
@@ -573,7 +577,7 @@ def main():
             horizontal=True,
         )
         friendly_compare = st.radio(
-            "どちらの観点スコアの方が、理由が理解しやすかったですか？",
+            "どちらの観点スコアの方が、それぞれの観光地が推薦された理由が理解しやすかったですか？",
             [
                 "1: A が強く一致",
                 "2: A がやや一致",
