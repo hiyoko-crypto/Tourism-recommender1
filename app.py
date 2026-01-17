@@ -376,7 +376,7 @@ def main():
         st.subheader("あなたの好みの観点（推定結果）")
 
         df = st.session_state.user_pref.copy()
-        df["総合スコア"] = df["総合スコア"].round(3)
+        df["スコア"] = df["総合スコア"].round(3)
         df.index = range(1, len(df) + 1)
 
         df = st.session_state.user_pref.copy()
