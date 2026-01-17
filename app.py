@@ -467,17 +467,31 @@ def main():
         # ============================ 
         # A の観点スコア表示 
         # ============================ 
+        # A の観点スコア表示
         st.markdown("## リスト A の観点スコア") 
         
-        dfA = st.session_state.user_pref_A.copy() 
-        dfA = dfA.T 
-        dfA.columns = ["スコア"] 
-        dfA["スコア"] = dfA["スコア"].round(3) 
-        dfA = dfA.sort_values("スコア", ascending=False) 
+        user_pref_A = st.session_state.user_pref_A
         
-        # 元々興味ありフラグ 
+        # 1. まず Series に落とす
+        if isinstance(user_pref_A, pd.DataFrame):
+            if user_pref_A.shape[0] == 1:
+                sA = user_pref_A.iloc[0]        # 1行×n列 → 行を取る
+            elif user_pref_A.shape[1] == 1:
+                sA = user_pref_A.iloc[:, 0]     # n行×1列 → 列を取る
+            else:
+                # 想定外だが、とりあえず最初の行を使う
+                sA = user_pref_A.iloc[0]
+        else:
+            sA = user_pref_A  # すでに Series の場合
+        
+        # 2. Series → DataFrame にして整形
+        dfA = sA.to_frame(name="スコア")
+        dfA["スコア"] = dfA["スコア"].astype(float).round(3)
+        dfA = dfA.sort_values("スコア", ascending=False)
+        
         dfA["元々興味あり"] = dfA.index.map(
-            lambda v: "◯" if v in st.session_state.selected_viewpoints else "" )
+            lambda v: "◯" if v in st.session_state.selected_viewpoints else ""
+        )
         
         st.table(dfA[["スコア", "元々興味あり"]]) 
 
@@ -504,18 +518,33 @@ def main():
         # ============================ 
         # B の観点スコア表示 
         # ============================ 
+        # B の観点スコア表示
         st.markdown("## リスト B の観点スコア") 
         
-        dfB = st.session_state.user_pref_B.copy() 
-        dfB = dfB.T 
-        dfB.columns = ["スコア"] 
-        dfB["スコア"] = dfB["スコア"].round(3) 
-        dfB = dfB.sort_values("スコア", ascending=False) 
+        user_pref_B = st.session_state.user_pref_B
+        
+        # 1. まず Series に落とす
+        if isinstance(user_pref_B, pd.DataFrame):
+            if user_pref_B.shape[0] == 1:
+                sB = user_pref_B.iloc[0]        # 1行×n列 → 行を取る
+            elif user_pref_B.shape[1] == 1:
+                sB = user_pref_B.iloc[:, 0]     # n行×1列 → 列を取る
+            else:
+                # 想定外だが、とりあえず最初の行を使う
+                sB = user_pref_B.iloc[0]
+        else:
+            sB = user_pref_B  # すでに Series の場合
+        
+        # 2. Series → DataFrame にして整形
+        dfB = sB.to_frame(name="スコア")
+        dfB["スコア"] = dfB["スコア"].astype(float).round(3)
+        dfB = dfB.sort_values("スコア", ascending=False)
         
         dfB["元々興味あり"] = dfB.index.map(
-            lambda v: "◯" if v in st.session_state.selected_viewpoints else "" ) 
+            lambda v: "◯" if v in st.session_state.selected_viewpoints else ""
+        )
         
-        st.table(dfB[["スコア", "元々興味あり"]]) 
+        st.table(dfB[["スコア", "元々興味あり"]])
         st.markdown("### B の観点スコアに関する評価")
         
         match_B = st.slider(
