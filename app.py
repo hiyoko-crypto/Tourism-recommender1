@@ -10,13 +10,15 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 
 # =====================
-# 条件割り当て（最少条件からランダム）
+# 条件割り当て（4C2 = 6通り）
 # =====================
 CONDITIONS = [
-    "noaspect_all",
-    "aspect_all",
-    "aspect_top5",
-    "aspect_exclude_interest_top5"
+    ("noaspect_all", "aspect_all"),
+    ("noaspect_all", "aspect_top5"),
+    ("noaspect_all", "aspect_exclude_interest_top5"),
+    ("aspect_all", "aspect_top5"),
+    ("aspect_all", "aspect_exclude_interest_top5"),
+    ("aspect_top5", "aspect_exclude_interest_top5")
 ]
 
 
@@ -52,7 +54,7 @@ def get_condition_from_log():
     
     
     # 条件のカウント
-    counts = {c: 0 for c in CONDITIONS}
+    counts = {str(c): 0 for c in CONDITIONS}
 
     for row in data_rows: 
         if len(row) <= cond_idx: 
@@ -67,7 +69,7 @@ def get_condition_from_log():
         
     # 最小値の条件を選ぶ 
     min_count = min(counts.values()) 
-    candidates = [c for c, v in counts.items() if v == min_count] 
+    candidates = [eval(c) for c, v in counts.items() if v == min_count] 
 
     return random.choice(candidates)
 
@@ -206,14 +208,11 @@ def main():
                     if checked:
                         visited_spots.append(spot)
 
-                        if is_aspect:
-                            viewpoints = st.multiselect(
-                                f"{spot} で良かった観点（1つ以上選択してください）",
-                                viewpoint_list,
-                                key=f"viewpoints_{spot}"
-                            )
-                        else:
-                            viewpoints = []
+                        viewpoints = st.multiselect(
+                            f"{spot} で良かった観点（1つ以上選択してください）",
+                            viewpoint_list,
+                            key=f"viewpoints_{spot}"
+                        )
 
                         spot_feedback[spot] = {
                             "viewpoints": viewpoints
@@ -245,57 +244,109 @@ def main():
             st.session_state.visited_spots = visited_spots
             st.session_state.spot_feedback = spot_feedback
 
-            top_k = 5 if "top5" in st.session_state.condition else 10
-
-            st.session_state.user_pref, st.session_state.topk_viewpoints = compute_user_preference(
-                visited_spots,
-                spot_feedback,
-                spot_scores,
-                selected_viewpoints,
-                top_k,
-                st.session_state.condition
-            )
+            st.session_state.condition_pair = st.session_state.condition
 
             st.session_state.step = 2
             st.rerun()
         return
 
     # =====================
-    # Step 2: 推薦 + アンケート（観点スコアはまだ見せない）
+    # Step 2: A/B 推薦比較 + 全観光地評価
     # =====================
     if st.session_state.step == 2:
-
-        top_k = 5 if "top5" in st.session_state.condition else 10
-
-        st.subheader("おすすめ観光地（上位 10 件）")
-
-        rec_df, excluded_spots = recommend_spots(
-            user_pref_df=st.session_state.user_pref,
+    
+        st.subheader("おすすめ観光地の比較（A/B）")
+    
+        # --- 条件ペアを取り出す ---
+        condA, condB = st.session_state.condition_pair
+    
+        # --- A のユーザ嗜好を計算 ---
+        user_pref_A, topkA = compute_user_preference(
+            st.session_state.visited_spots,
+            st.session_state.spot_feedback,
+            spot_scores,
+            st.session_state.selected_viewpoints,
+            top_k=5,
+            condition=condA
+        )
+    
+        # --- B のユーザ嗜好を計算 ---
+        user_pref_B, topkB = compute_user_preference(
+            st.session_state.visited_spots,
+            st.session_state.spot_feedback,
+            spot_scores,
+            st.session_state.selected_viewpoints,
+            top_k=5,
+            condition=condB
+        )
+    
+        # --- A の推薦 ---
+        recA, excludedA = recommend_spots(
+            user_pref_df=user_pref_A,
             spot_scores=spot_scores,
-            condition=st.session_state.condition,
+            condition=condA,
             selected_viewpoints=st.session_state.selected_viewpoints,
-            top_k=top_k,
+            top_k=5,
             visited_spots=st.session_state.visited_spots
         )
-
-        st.session_state.excluded_spots = excluded_spots
-        df_rec = rec_df.copy()
-        df_rec.index = range(1, len(df_rec) + 1)
-
-        if "スコア" in df_rec.columns:
-            df_rec["スコア"] = df_rec["スコア"].round(3)
-
-        st.write(df_rec)        
-
+    
+        # --- B の推薦 ---
+        recB, excludedB = recommend_spots(
+            user_pref_df=user_pref_B,
+            spot_scores=spot_scores,
+            condition=condB,
+            selected_viewpoints=st.session_state.selected_viewpoints,
+            top_k=5,
+            visited_spots=st.session_state.visited_spots
+        )
+    
+        # 保存（ログ用）
+        st.session_state.user_pref_A = user_pref_A
+        st.session_state.user_pref_B = user_pref_B
+        st.session_state.recA = recA
+        st.session_state.recB = recB
+        st.session_state.excludedA = excludedA
+        st.session_state.excludedB = excludedB
+    
+        # --- 表示用に整形 ---
+        dfA = recA.copy()
+        dfA.index = range(1, len(dfA) + 1)
+        if "スコア" in dfA.columns:
+            dfA["スコア"] = dfA["スコア"].round(3)
+    
+        dfB = recB.copy()
+        dfB.index = range(1, len(dfB) + 1)
+        if "スコア" in dfB.columns:
+            dfB["スコア"] = dfB["スコア"].round(3)
+    
+        # --- A/B を横並びで表示 ---
+        colA, colB = st.columns(2)
+    
+        with colA:
+            st.markdown(f"### リスト A（{condA}）")
+            st.table(dfA)
+    
+        with colB:
+            st.markdown(f"### リスト B（{condB}）")
+            st.table(dfB)
+    
         st.markdown("---")
-        st.subheader("推薦結果の評価をお願いします")
-
+    
+        # ============================
+        # ここから全観光地の評価（重複は除く）
+        # ============================
+    
         st.subheader("各観光地ごとに評価をお願いします")
-
-        # --- 観点ごとに min-max 正規化（ループ前に実行） ---
+    
+        # --- A と B のスポットを統合（重複除去） ---
+        spots_A = list(dfA["スポット"])
+        spots_B = list(dfB["スポット"])
+        all_spots = list(dict.fromkeys(spots_A + spots_B))  # 重複除去＋順序保持
+    
+        # --- 観点ごとに min-max 正規化 ---
         df_norm = spot_scores.copy()
         viewpoint_cols = [c for c in df_norm.columns if c != "スポット"]
-
+    
         for col in viewpoint_cols:
             col_values = df_norm[col].astype(float)
             min_v = col_values.min()
@@ -304,16 +355,18 @@ def main():
                 df_norm[col] = 0.5
             else:
                 df_norm[col] = (col_values - min_v) / (max_v - min_v)
-
-        # --- 推薦結果の表示 ---
-        for idx, row in df_rec.iterrows():
-            spot = row["スポット"]
-            score = round(row["スコア"], 3)
-
-            # ▼ トグル（観点スコアだけ表示）
-            with st.expander(f"{idx}. {spot}（スコア: {score}）"):
+    
+        # --- 評価用辞書 ---
+        if "spot_questions" not in st.session_state:
+            st.session_state.spot_questions = {}
+    
+        # --- 各観光地を評価 ---
+        for idx, spot in enumerate(all_spots, start=1):
+    
+            # 観点スコア表示
+            with st.expander(f"{idx}. {spot}"):
                 st.write("#### 観点スコア")
-
+    
                 detail = (
                     df_norm[df_norm["スポット"] == spot]
                     .drop(columns=["スポット"])
@@ -322,60 +375,83 @@ def main():
                 detail.columns = ["スコア"]
                 detail["スコア"] = detail["スコア"].round(3)
                 detail = detail.sort_values("スコア", ascending=False).head(5)
-
+    
                 st.table(detail)
-
-                # ▼ 口コミURLを表示
+    
+                # 口コミURL
                 if spot in spot_url_dict:
                     st.markdown(f"**口コミURL：** [こちらをクリック]({spot_url_dict[spot]})")
                 else:
                     st.caption("口コミURLは登録されていません")
-
-            # ▼ トグルの外に質問を置く（ここがポイント）
+    
             visited = st.radio(
-                "この観光地に行ったことはありますか？",
-                ["行ったことがない" , "行ったことがある"],
+                f"{spot} に行ったことがありますか？",
+                ["行ったことがない", "行ったことがある"],
                 key=f"visited_{spot}"
             )
-            st.caption("※ 行ったことがある場合は「また行きたいか」、ない場合は「行ってみたいか」で評価してください")
-            
+    
             likability = st.slider(
                 f"{spot} に行ってみたいと思いましたか？",
                 1, 5, 3,
                 key=f"like_{spot}"
             )
-
-            # 保存用
-            if "spot_questions" not in st.session_state:
-                st.session_state.spot_questions = {}
-
+    
             st.session_state.spot_questions[spot] = {
                 "likability": likability,
                 "visited": visited
             }
-
-
-        # 推薦全体に対する評価
-        st.subheader("ここからは推薦全体に対して評価していただきます")
-        sat = st.slider("提示された観光地の推薦結果について、全体としてどの程度満足しましたか？", 1, 5, 3)
-        discover = st.slider("推薦結果の中に、これまで知らなかった・考えたことのなかった観光地はありましたか？", 1, 5, 3)        
-        favor = st.slider(
-            "今回の推薦結果は、あなたの好みや興味に合っていると感じましたか？",
-            1, 5, 3
-        )
+    
         st.markdown("---")
 
-        spot_comment = st.text_area(
-            "今回の推薦結果について、良いと感じた点や違和感を覚えた点があれば自由にお書きください。",
-            height=150 
-        )
+        # ============================ 
+        # A の全体評価 
+        # ============================ 
+        st.subheader("リスト A の全体評価") 
 
+        sat_A = st.slider( "A の推薦結果について、全体としてどの程度満足しましたか？", 1, 5, 3 ) 
+        discover_A = st.slider( "A の推薦結果の中に、知らなかった観光地はありましたか？", 1, 5, 3 ) 
+        favor_A = st.slider( "A の推薦結果は、あなたの好みや興味に合っていると感じましたか？", 1, 5, 3 ) 
+
+        st.markdown("---") 
+        # ============================ 
+        # B の全体評価 
+        # ============================ 
+        st.subheader("リスト B の全体評価") 
+
+        sat_B = st.slider( "B の推薦結果について、全体としてどの程度満足しましたか？", 1, 5, 3 ) 
+        discover_B = st.slider( "B の推薦結果の中に、知らなかった観光地はありましたか？", 1, 5, 3 ) 
+        favor_B = st.slider( "B の推薦結果は、あなたの好みや興味に合っていると感じましたか？", 1, 5, 3 ) 
+
+        st.markdown("---")        
+        # ============================
+        # A/B 比較
+        # ============================
+    
+        st.subheader("どちらの推薦リストが良いと思いましたか？")
+    
+        ab_choice = st.radio(
+            "選択してください",
+            ["A の方が良い", "B の方が良い", "どちらとも言えない"],
+            key="ab_choice"
+        )
+    
+        ab_comment = st.text_area(
+            "A/B 比較についてコメントがあれば自由にお書きください",
+            height=150
+        )
+    
         if st.button("次へ"):
-            st.session_state.sat = sat
-            st.session_state.discover = discover
-            st.session_state.likability = likability
-            st.session_state.spot_comment = spot_comment
-            st.session_state.favor = favor
+            st.session_state.ab_choice = ab_choice 
+            st.session_state.ab_comment = ab_comment
+            
+            st.session_state.sat_A = sat_A
+            st.session_state.discover_A = discover_A
+            st.session_state.favor_A = favor_A
+
+            st.session_state.sat_B = sat_B
+            st.session_state.discover_B = discover_B
+            st.session_state.favor_B = favor_B
+
             st.session_state.step = 3
             st.rerun()
         return
@@ -386,35 +462,103 @@ def main():
     if st.session_state.step == 3:
 
         st.subheader("あなたの好みの観点（推定結果）")
+        st.write("ここでは、A と B の推薦で推定されたあなたの好み（観点スコア）を表示します。")
 
-        df = st.session_state.user_pref.copy()
-        df["スコア"] = df["総合スコア"].round(3)
-        df.index = range(1, len(df) + 1)
+        # ============================ 
+        # A の観点スコア表示 
+        # ============================ 
+        st.markdown("## リスト A の観点スコア") 
+        
+        dfA = st.session_state.user_pref_A.copy() 
+        dfA = dfA.T 
+        dfA.columns = ["スコア"] 
+        dfA["スコア"] = dfA["スコア"].round(3) 
+        dfA = dfA.sort_values("スコア", ascending=False) 
+        
+        # 元々興味ありフラグ 
+        dfA["元々興味あり"] = dfA.index.map(
+            lambda v: "◯" if v in st.session_state.selected_viewpoints else "" )
+        
+        st.table(dfA[["スコア", "元々興味あり"]]) 
 
-        df["元々興味あり"] = df["観点"].apply(
-            lambda v: "◯" if v in st.session_state.selected_viewpoints else ""
-        )
+        st.markdown("### A の観点スコアに関する評価")
 
-        st.table(df[["観点", "スコア", "元々興味あり"]])
-
-        st.markdown("---")
-
-        match = st.slider(
+        match_A = st.slider(
             "この「あなたの好みの観点」は、あなた自身の認識と一致していると感じましたか？",
             1, 5, 3
         )
-        accept = st.slider(
+        accept_A = st.slider(
             "表示された観点の中に、意外だと感じたものはありましたか？",
             1, 5, 3
         )
-        friendly = st.slider(
+        friendly_A = st.slider(
             "なぜこれらの観光地が推薦されたのか、理解しやすかったですか？",
             1, 5, 3
         )
-        aspect_comment = st.text_area(
+        aspect_comment_A = st.text_area(
             "今回の「あなたの好みの観点」について、良いと感じた点や違和感を覚えた点があれば自由にお書きください。",
+            height=120 
+        )        
+        st.markdown("---")
+
+        # ============================ 
+        # B の観点スコア表示 
+        # ============================ 
+        st.markdown("## リスト B の観点スコア") 
+        
+        dfB = st.session_state.user_pref_B.copy() 
+        dfB = dfB.T 
+        dfB.columns = ["スコア"] 
+        dfB["スコア"] = dfB["スコア"].round(3) 
+        dfB = dfB.sort_values("スコア", ascending=False) 
+        
+        dfB["元々興味あり"] = dfB.index.map(
+            lambda v: "◯" if v in st.session_state.selected_viewpoints else "" ) 
+        
+        st.table(dfB[["スコア", "元々興味あり"]]) 
+        st.markdown("### B の観点スコアに関する評価")
+        
+        match_B = st.slider(
+            "この「あなたの好みの観点」は、あなた自身の認識と一致していると感じましたか？",
+            1, 5, 3
+        )
+        accept_B = st.slider(
+            "表示された観点の中に、意外だと感じたものはありましたか？",
+            1, 5, 3
+        )
+        friendly_B = st.slider(
+            "なぜこれらの観光地が推薦されたのか、理解しやすかったですか？",
+            1, 5, 3
+        )
+        aspect_comment_B = st.text_area(
+            "今回の「あなたの好みの観点」について、良いと感じた点や違和感を覚えた点があれば自由にお書きください。",
+            height=120 
+        )        
+        st.markdown("---")
+
+        st.markdown("## A/B の観点スコアの比較")
+
+        match_compare = st.radio(
+            "どちらの観点スコアの方が、あなた自身の認識とより一致していると感じましたか？",
+            ["A の方が一致していた", "B の方が一致していた", "どちらとも言えない"]
+        )
+        
+        accept_compare = st.radio(
+            "どちらの観点スコアの方が、意外性が少なかったですか？",
+            ["A の方が意外性が少なかった", "B の方が意外性が少なかった", "どちらとも言えない"]
+        )
+        
+        friendly_compare = st.radio(
+            "どちらの観点スコアの方が、理由が理解しやすかったですか？",
+            ["A の方が理解しやすかった", "B の方が理解しやすかった", "どちらとも言えない"]
+        )
+        aspect_comment_compare = st.text_area(
+            "A, B両方の「あなたの好みの観点」について、良いと感じた点や違和感を覚えた点があれば自由にお書きください。",
             height=150 
         )        
+
+
+
 
 
         if st.button("送信して終了"):
@@ -422,24 +566,50 @@ def main():
                 "user_id": st.session_state.user_id,
                 "name": st.session_state.name,
                 "age_group": st.session_state.age_group,
-                "condition": st.session_state.condition,
+                "condition_pair": json.dumps(st.session_state.condition_pair),
+                
                 "selected_viewpoints": ",".join(st.session_state.selected_viewpoints),
                 "visited_spots": ",".join(st.session_state.visited_spots),
                 "spot_feedback": json.dumps(st.session_state.spot_feedback, ensure_ascii=False),
+
+                "recA": json.dumps(st.session_state.recA.to_dict(orient="records"), ensure_ascii=False), 
+                "recB": json.dumps(st.session_state.recB.to_dict(orient="records"), ensure_ascii=False), 
+                "excludedA": json.dumps(st.session_state.excludedA, ensure_ascii=False), 
+                "excludedB": json.dumps(st.session_state.excludedB, ensure_ascii=False), 
+                
+                "user_pref_A": json.dumps(st.session_state.user_pref_A.to_dict(orient="records"), ensure_ascii=False), 
+                "user_pref_B": json.dumps(st.session_state.user_pref_B.to_dict(orient="records"), ensure_ascii=False),
+
+                # --- A の全体評価 --- 
+                "sat_A": st.session_state.sat_A, 
+                "discover_A": st.session_state.discover_A, 
+                "favor_A": st.session_state.favor_A, 
+                
+                # --- B の全体評価 --- 
+                "sat_B": st.session_state.sat_B, 
+                "discover_B": st.session_state.discover_B, 
+                "favor_B": st.session_state.favor_B,
+                
                 "spot_questions": json.dumps(st.session_state.spot_questions, ensure_ascii=False),
-                "satisfaction": st.session_state.sat,
-                "discovery": st.session_state.discover,
-                "favor": st.session_state.favor,
-                "spot_comment": st.session_state.spot_comment,
-                "user_pref_ranking": json.dumps(
-                    st.session_state.user_pref.to_dict(orient="records"),
-                    ensure_ascii=False
-                ),
-                "excluded_spots": json.dumps(st.session_state.excluded_spots, ensure_ascii=False),
-                "match": match,
-                "accept": accept,
-                "friendly": friendly,
-                "aspect_comment": aspect_comment,
+
+                "ab_choice": st.session_state.ab_choice, 
+                "ab_comment": st.session_state.ab_comment,
+                
+                "match_A": match_A,
+                "accept_A": accept_A,
+                "friendly_A": friendly_A,
+                "aspect_comment_A": aspect_comment_A,
+                
+                "match_B": match_B,
+                "accept_B": accept_B,
+                "friendly_B": friendly_B,
+                "aspect_comment_B": aspect_comment_B,
+
+                "match_compare": match_compare,
+                "accept_compare": accept_compare,
+                "friendly_compare": friendly_compare,
+                "aspect_comment_compare": aspect_comment_compare,
+
                 "timestamp": datetime.now().isoformat()
             })
 
