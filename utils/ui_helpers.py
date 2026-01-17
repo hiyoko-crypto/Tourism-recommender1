@@ -19,9 +19,9 @@ def overall_eval_ui(label, dfA):
     st.subheader(f"リスト {label} の全体評価") 
     st.markdown("---")
     st.table(dfA)
-    sat = st.slider(f"{label} の推薦結果の満足度", 1, 5, 3)
-    discover = st.slider(f"{label} に新規性はありましたか？", 1, 5, 3)
-    favor = st.slider(f"{label} は好みに合っていましたか？", 1, 5, 3)
+    sat = st.slider(f"{label} の推薦結果について、全体としてどの程度満足しましたか？", 1, 5, 3)
+    discover = st.slider(f"{label} の推薦結果の中に、知らなかった観光地はどれくらいありましたか？", 1, 5, 3)
+    favor = st.slider(f"{label} の推薦結果は、あなたの好みや興味に合っていると感じましたか？", 1, 5, 3)
     st.markdown("---")
     return sat, discover, favor
 
@@ -35,9 +35,9 @@ def show_aspect_eval(label, user_pref_df, selected_viewpoints):
     )
     st.table(df[["観点", "スコア", "元々興味あり"]])
 
-    match = st.slider(f"{label} は自己認識と一致していましたか？", 1, 5, 3)
-    accept = st.slider(f"{label} に意外性はありましたか？", 1, 5, 3)
-    friendly = st.slider(f"{label} は理解しやすかったですか？", 1, 5, 3)
+    match = st.slider(f"{label} はあなた自身の認識と一致していると感じましたか？", 1, 5, 3)
+    accept = st.slider("表示された観点の中に、意外だと感じたものはありましたか？", 1, 5, 3)
+    friendly = st.slider("なぜこれらの観光地が推薦されたのか、理解しやすかったですか？", 1, 5, 3)
     comment = st.text_area(f"{label} に関してよかった点悪かった点があればご記入ください", height=120)
 
     return match, accept, friendly, comment
