@@ -396,11 +396,11 @@ def main():
         # ============================ 
         # A の全体評価 
         # ============================ 
-        sat_A, discover_A, favor_A = overall_eval_ui("リスト A", dfA)
+        sat_A, discover_A, favor_A = overall_eval_ui("A", dfA)
         # ============================ 
         # B の全体評価 
         # ============================ 
-        sat_B, discover_B, favor_B = overall_eval_ui("リスト B", dfB)
+        sat_B, discover_B, favor_B = overall_eval_ui("B", dfB)
         # ============================
         # A/B 比較
         # ============================
