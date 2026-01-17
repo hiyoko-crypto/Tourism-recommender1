@@ -454,6 +454,17 @@ def main():
         )
     
         if st.button("次へ"):
+            st.session_state.sat_A = sat_A
+            st.session_state.discover_A = discover_A
+            st.session_state.favor_A = favor_A
+        
+            st.session_state.sat_B = sat_B
+            st.session_state.discover_B = discover_B
+            st.session_state.favor_B = favor_B
+        
+            st.session_state.ab_choice = ab_choice
+            st.session_state.ab_comment = ab_comment
+        
             st.session_state.step = 3
             st.rerun()
         return
