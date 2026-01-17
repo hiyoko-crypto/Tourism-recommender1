@@ -317,11 +317,11 @@ def main():
         colA, colB = st.columns(2)
     
         with colA:
-            st.markdown(f"### リスト A（{condA}）")
+            st.markdown(f"### リスト A")
             st.table(dfA)
     
         with colB:
-            st.markdown(f"### リスト B（{condB}）")
+            st.markdown(f"### リスト B")
             st.table(dfB)
     
         st.markdown("---")
@@ -385,9 +385,9 @@ def main():
             )
     
             if visited == "行ったことがある":
-                label = f"{spot} にまた行きたいと思いましたか？"
+                label = f"{spot} にまた行きたいと思いますか？"
             else:
-                label = f"{spot} に行ってみたいと思いましたか？"
+                label = f"{spot} に行ってみたいと思いますか？"
             
             likability = st.slider(label, 1, 5, 3)
     
@@ -402,6 +402,8 @@ def main():
         # A の全体評価 
         # ============================ 
         st.subheader("リスト A の全体評価") 
+        st.markdown("---")
+        st.table(dfA)
 
         sat_A = st.slider( "A の推薦結果について、全体としてどの程度満足しましたか？", 1, 5, 3 ) 
         discover_A = st.slider( "A の推薦結果の中に、知らなかった観光地はありましたか？", 1, 5, 3 ) 
@@ -412,6 +414,8 @@ def main():
         # B の全体評価 
         # ============================ 
         st.subheader("リスト B の全体評価") 
+        st.markdown("---")
+        st.table(dfB)
 
         sat_B = st.slider( "B の推薦結果について、全体としてどの程度満足しましたか？", 1, 5, 3 ) 
         discover_B = st.slider( "B の推薦結果の中に、知らなかった観光地はありましたか？", 1, 5, 3 ) 
@@ -421,7 +425,17 @@ def main():
         # ============================
         # A/B 比較
         # ============================
-    
+        # --- A/B を横並びで表示 ---
+        colA, colB = st.columns(2)
+
+        with colA:
+            st.markdown("### リスト A")
+            st.table(dfA)
+        
+        with colB:
+            st.markdown("### リスト B")
+            st.table(dfB)
+        
         st.subheader("どちらの推薦リストが良いと思いましたか？")
     
         ab_choice = st.radio(
