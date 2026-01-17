@@ -470,32 +470,12 @@ def main():
         # ============================ 
         st.markdown("## リスト A の観点スコア") 
         
-        rawA = st.session_state.user_pref_A
-        
-        # 1. まず Series に落とす
-        if isinstance(rawA, pd.DataFrame):
-            if rawA.shape[0] == 1:
-                sA = rawA.iloc[0]        # 1行×n列 → 行を取る
-            elif rawA.shape[1] == 1:
-                sA = rawA.iloc[:, 0]     # n行×1列 → 列を取る
-            else:
-                # 想定外だが、とりあえず最初の行を使う
-                sA = rawA.iloc[0]
-        else:
-            sA = rawA  # すでに Series の場合
-        
-        # 2. Series → DataFrame にして整形
-        dfA = sA.to_frame(name="スコア")
-        dfA["スコア"] = pd.to_numeric(dfA["スコア"], errors="coerce")
-        dfA = dfA.dropna()
-        dfA["スコア"] = dfA["スコア"].round(3)
-        dfA = dfA.sort_values("スコア", ascending=False)
-        
-        dfA["元々興味あり"] = dfA.index.map(
+        dfA = st.session_state.user_pref_A.copy()
+        dfA["スコア"] = dfA["総合スコア"].round(3)
+        dfA["元々興味あり"] = dfA["観点"].apply(
             lambda v: "◯" if v in st.session_state.selected_viewpoints else ""
         )
-        
-        st.table(dfA[["スコア", "元々興味あり"]]) 
+        st.table(dfA[["観点", "スコア", "元々興味あり"]])
 
         st.markdown("### A の観点スコアに関する評価")
 
@@ -523,32 +503,13 @@ def main():
         # B の観点スコア表示
         st.markdown("## リスト B の観点スコア") 
         
-        rawB = st.session_state.user_pref_B
-        
-        # 1. まず Series に落とす
-        if isinstance(rawB, pd.DataFrame):
-            if rawB.shape[0] == 1:
-                sB = rawB.iloc[0]        # 1行×n列 → 行を取る
-            elif rawB.shape[1] == 1:
-                sB = rawB.iloc[:, 0]     # n行×1列 → 列を取る
-            else:
-                # 想定外だが、とりあえず最初の行を使う
-                sB = rawB.iloc[0]
-        else:
-            sB = rawB  # すでに Series の場合
-        
-        # 2. Series → DataFrame にして整形
-        dfB = sB.to_frame(name="スコア")
-        dfB["スコア"] = pd.to_numeric(dfB["スコア"], errors="coerce") 
-        dfB = dfB.dropna()
-        dfB["スコア"] = dfB["スコア"].round(3)
-        dfB = dfB.sort_values("スコア", ascending=False)
-        
-        dfB["元々興味あり"] = dfB.index.map(
+        dfB = st.session_state.user_pref_B.copy()
+        dfB["スコア"] = dfB["総合スコア"].round(3)
+        dfB["元々興味あり"] = dfB["観点"].apply(
             lambda v: "◯" if v in st.session_state.selected_viewpoints else ""
         )
-        
-        st.table(dfB[["スコア", "元々興味あり"]])
+        st.table(dfB[["観点", "スコア", "元々興味あり"]])
+
         st.markdown("### B の観点スコアに関する評価")
         
         match_B = st.slider(
