@@ -256,7 +256,8 @@ def main():
             spot_scores=spot_scores,
             condition=st.session_state.condition,
             selected_viewpoints=st.session_state.selected_viewpoints,
-            top_k=top_k
+            top_k=top_k,
+            visited_spots=st.session_state.visited_spots
         )
 
         df_rec = rec_df.copy()
