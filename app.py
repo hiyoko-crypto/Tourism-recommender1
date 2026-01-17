@@ -451,6 +451,13 @@ def main():
     # =====================
     if st.session_state.step == 3:
 
+        # Step3 の最初に追加
+        st.markdown("""
+            <script>
+                window.parent.document.querySelector('section.main').scrollTo(0, 0);
+            </script>
+        """, unsafe_allow_html=True)
+    
         st.subheader("あなたの好みの観点（推定結果）")
         st.write("ここでは、A と B の推薦で推定されたあなたの好みを表示します。")
 
