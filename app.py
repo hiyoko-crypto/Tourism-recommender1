@@ -251,7 +251,7 @@ def main():
 
         st.subheader("おすすめ観光地（上位 10 件）")
 
-        rec_df = recommend_spots(
+        rec_df, excluded_spots = recommend_spots(
             user_pref_df=st.session_state.user_pref,
             spot_scores=spot_scores,
             condition=st.session_state.condition,
@@ -260,6 +260,7 @@ def main():
             visited_spots=st.session_state.visited_spots
         )
 
+        st.session_state.excluded_spots = excluded_spots
         df_rec = rec_df.copy()
         df_rec.index = range(1, len(df_rec) + 1)
 
@@ -418,6 +419,7 @@ def main():
                     st.session_state.user_pref.to_dict(orient="records"),
                     ensure_ascii=False
                 ),
+                "excluded_spots": json.dumps(st.session_state.excluded_spots, ensure_ascii=False),
                 "match": match,
                 "accept": accept,
                 "friendly": friendly,
