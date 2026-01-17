@@ -396,27 +396,11 @@ def main():
         # ============================ 
         # A の全体評価 
         # ============================ 
-        st.subheader("リスト A の全体評価") 
-        st.markdown("---")
-        st.table(dfA)
-
         sat_A, discover_A, favor_A = overall_eval_ui("リスト A", dfA)
-
-
-        st.markdown("---") 
         # ============================ 
         # B の全体評価 
         # ============================ 
-        st.subheader("リスト B の全体評価") 
-        st.markdown("---")
-        st.table(dfB)
-        sat_B, discover_B, favor_B = overall_eval_ui("リスト B")
-
-        sat_B = st.slider("B の推薦結果について、全体としてどの程度満足しましたか？", 1, 5, 3) 
-        discover_B = st.slider("B の推薦結果の中に、知らなかった観光地はありましたか？", 1, 5, 3) 
-        favor_B = st.slider("B の推薦結果は、あなたの好みや興味に合っていると感じましたか？", 1, 5, 3)
-
-        st.markdown("---")        
+        sat_B, discover_B, favor_B = overall_eval_ui("リスト B", dfB)
         # ============================
         # A/B 比較
         # ============================
