@@ -100,21 +100,33 @@ def save_log(data):
         st.secrets["gcp_service_account"]["sheet_id"]
     ).sheet1
 
-    # 既存のヘッダーを取得
+    # 既存データを取得
     existing = sheet.get_all_values()
 
+    # ============================
+    # ★ ログがまだ無い場合（1行目が空）
+    # ============================
     if len(existing) == 0:
-        # 初回：ヘッダーを固定順で作成
-        header = list(data.keys())
+        header = list(data.keys())  # ← data のキーをそのままヘッダーにする
         sheet.append_row(header)
+
     else:
-        # 2回目以降：既存ヘッダーを使う
+        # 既存ヘッダーを取得
         header = existing[0]
 
-    # ヘッダー順にデータを並べる
+        # ★ data に新しいキーが追加されていたらヘッダーに追加する
+        new_keys = [k for k in data.keys() if k not in header]
+        if new_keys:
+            header += new_keys
+            sheet.update('1:1', [header])  # 1行目を更新
+
+    # ============================
+    # ★ ヘッダー順にデータを並べる
+    # ============================
     row = [data.get(col, "") for col in header]
 
     sheet.append_row(row)
+
 
 # =====================
 # メイン処理
