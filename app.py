@@ -468,6 +468,9 @@ def main():
         
             st.session_state.ab_choice = ab_choice
             st.session_state.ab_comment = ab_comment
+
+            st.session_state.dfA = dfA
+            st.session_state.dfB = dfB
         
             st.session_state.step = 3
             st.rerun()
@@ -587,13 +590,22 @@ def main():
             ],
             horizontal=True,
         )
+        dfA = st.session_state.dfA
+        dfB = st.session_state.dfB
+        
+        colA, colB = st.columns(2)
+        
+        with colA:
+            st.markdown("### リスト A")
+            st.table(dfA)
+        
+        with colB:
+            st.markdown("### リスト B")
+            st.table(dfB)
         aspect_comment_compare = st.text_area(
             "A, B両方の「観点リスト」について、良いと感じた点や違和感を覚えた点があれば自由にお書きください。",
             height=150 
         )        
-
-
-
 
 
         if st.button("送信して終了"):
