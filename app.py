@@ -585,7 +585,7 @@ def main():
                 "user_id": st.session_state.user_id,
                 "name": st.session_state.name,
                 "age_group": st.session_state.age_group,
-                "condition": st.session_state.condition,
+                "condition_pair": f"{st.session_state.condition_pair[0]}|{st.session_state.condition_pair[1]}",
                 
                 "selected_viewpoints": ",".join(st.session_state.selected_viewpoints),
                 "visited_spots": ",".join(st.session_state.visited_spots),
