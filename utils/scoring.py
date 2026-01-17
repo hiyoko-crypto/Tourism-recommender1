@@ -123,13 +123,15 @@ def recommend_spots(
     spot_scores,
     condition,
     selected_viewpoints,
-    top_k=5
+    top_k=5,
+    visited_spots=None
 ):
+    if visited_spots is None:
+        visited_spots = []
+
     viewpoint_cols = [c for c in spot_scores.columns if c != "スポット"]
 
-    # ============================
-    # min-max 正規化
-    # ============================
+    # --- min-max 正規化 ---
     df_norm = spot_scores.copy()
     for col in viewpoint_cols:
         vals = df_norm[col].astype(float)
@@ -138,55 +140,53 @@ def recommend_spots(
         else:
             df_norm[col] = (vals - vals.min()) / (vals.max() - vals.min())
 
-    # ============================
-    # ユーザ嗜好重み
-    # ============================
+    # --- ユーザ嗜好重み ---
     weights = user_pref_df.set_index("観点")["総合スコア"]
 
-    # ============================
-    # 観点集合の選択
-    # ============================
+    # --- 観点集合 ---
     if condition == "aspect_top5":
         V = set(weights.sort_values(ascending=False).head(top_k).index)
-
     elif condition == "aspect_exclude_interest_top5":
         weights_wo_interest = weights.drop(selected_viewpoints, errors="ignore")
         V = set(weights_wo_interest.sort_values(ascending=False).head(top_k).index)
-
     elif condition == "aspect_all":
         V = set(weights.index)
-
     elif condition == "noaspect_all":
         results = []
         for _, row in df_norm.iterrows():
             spot = row["スポット"]
             score = row[viewpoint_cols].mean()
             results.append({"スポット": spot, "スコア": score})
-        return (
-            pd.DataFrame(results)
-            .sort_values("スコア", ascending=False)
-            .head(10)
-        )
-
+        df_all = pd.DataFrame(results).sort_values("スコア", ascending=False)
     else:
         raise ValueError("Unknown condition")
 
+    # --- スコア計算（元コードそのまま） ---
+    if condition != "noaspect_all":
+        results = []
+        for _, row in df_norm.iterrows():
+            spot = row["スポット"]
+            score = 0.0
+            for v in V:
+                score += weights[v] * row[v]
+            results.append({"スポット": spot, "スコア": score})
+
+        df_all = pd.DataFrame(results).sort_values("スコア", ascending=False)
+
     # ============================
-    # 観光地スコア計算（rankなし）
+    # ★ 除外スポットの記録（追加）
     # ============================
-    results = []
+    excluded = []
+    for rank, (_, row) in enumerate(df_all.iterrows(), start=1):
+        if row["スポット"] in visited_spots:
+            excluded.append({"スポット": row["スポット"], "順位": rank})
 
-    for _, row in df_norm.iterrows():
-        spot = row["スポット"]
-        score = 0.0
+    # ============================
+    # ★ visited_spots を除外（追加）
+    # ============================
+    df_filtered = df_all[~df_all["スポット"].isin(visited_spots)]
 
-        for v in V:
-            score += weights[v] * row[v]
+    # --- 上位10件を返す ---
+    df_rec = df_filtered.head(10)
 
-        results.append({"スポット": spot, "スコア": score})
-
-    return (
-        pd.DataFrame(results)
-        .sort_values("スコア", ascending=False)
-        .head(10)
-    )
+    return df_rec, excluded
