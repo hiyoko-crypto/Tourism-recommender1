@@ -408,9 +408,9 @@ def main():
         st.markdown("---")
         st.table(dfA)
 
-        sat_A = st.slider( "A の推薦結果について、全体としてどの程度満足しましたか？", 1, 5, 3 ) 
-        discover_A = st.slider( "A の推薦結果の中に、知らなかった観光地はありましたか？", 1, 5, 3 ) 
-        favor_A = st.slider( "A の推薦結果は、あなたの好みや興味に合っていると感じましたか？", 1, 5, 3 ) 
+        sat_A = st.slider("A の推薦結果について、全体としてどの程度満足しましたか？", 1, 5, 3, key="sat_A") 
+        discover_A = st.slider("A の推薦結果の中に、知らなかった観光地はありましたか？", 1, 5, 3, key="discover_A") 
+        favor_A = st.slider("A の推薦結果は、あなたの好みや興味に合っていると感じましたか？", 1, 5, 3, key="favor_A")
 
         st.markdown("---") 
         # ============================ 
@@ -420,9 +420,9 @@ def main():
         st.markdown("---")
         st.table(dfB)
 
-        sat_B = st.slider( "B の推薦結果について、全体としてどの程度満足しましたか？", 1, 5, 3 ) 
-        discover_B = st.slider( "B の推薦結果の中に、知らなかった観光地はありましたか？", 1, 5, 3 ) 
-        favor_B = st.slider( "B の推薦結果は、あなたの好みや興味に合っていると感じましたか？", 1, 5, 3 ) 
+        sat_B = st.slider("B の推薦結果について、全体としてどの程度満足しましたか？", 1, 5, 3, key="sat_B") 
+        discover_B = st.slider("B の推薦結果の中に、知らなかった観光地はありましたか？", 1, 5, 3, key="discover_B") 
+        favor_B = st.slider("B の推薦結果は、あなたの好みや興味に合っていると感じましたか？", 1, 5, 3, key="favor_B")
 
         st.markdown("---")        
         # ============================
@@ -449,7 +449,8 @@ def main():
     
         ab_comment = st.text_area(
             "A/B 比較についてコメントがあれば自由にお書きください",
-            height=150
+            height=150,
+            key="ab_comment"
         )
     
         if st.button("次へ"):
