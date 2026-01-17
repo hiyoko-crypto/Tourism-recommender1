@@ -253,7 +253,7 @@ def main():
         st.subheader("おすすめ観光地の比較（A/B）")
     
         # --- 条件ペアを取り出す ---
-        condA, condB = st.session_state.condition_pair
+        condA, condB = row[cond_idx].split("|")
     
         # --- A のユーザ嗜好を計算 ---
         user_pref_A, topkA = compute_user_preference(
@@ -561,7 +561,7 @@ def main():
                 "user_id": st.session_state.user_id,
                 "name": st.session_state.name,
                 "age_group": st.session_state.age_group,
-                "condition_pair": json.dumps(st.session_state.condition_pair),
+                "condition_pair": f"{condA}|{condB}",
                 
                 "selected_viewpoints": ",".join(st.session_state.selected_viewpoints),
                 "visited_spots": ",".join(st.session_state.visited_spots),
