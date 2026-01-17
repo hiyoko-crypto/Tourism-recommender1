@@ -551,12 +551,12 @@ def main():
                 "match_A": match_A,
                 "accept_A": accept_A,
                 "friendly_A": friendly_A,
-                "aspect_comment_A": aspect_comment_A,
+                "comment_A": comment_A,
                 
                 "match_B": match_B,
                 "accept_B": accept_B,
                 "friendly_B": friendly_B,
-                "aspect_comment_B": aspect_comment_B,
+                "comment_B": comment_B,
 
                 "match_compare": match_compare,
                 "accept_compare": accept_compare,
