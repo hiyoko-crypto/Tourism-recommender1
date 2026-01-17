@@ -32,47 +32,47 @@ def get_condition_from_log():
     )
     client = gspread.authorize(creds)
 
-    # スプレッドシートを開く
     sheet = client.open_by_key(
         st.secrets["gcp_service_account"]["sheet_id"]
     ).sheet1
 
-    # 全データ取得
     values = sheet.get_all_values()
 
-    # ログがまだ無い場合
+    # ログが無い場合
     if len(values) <= 1:
         return random.choice(CONDITIONS)
-    header = values[0] # 1行目 
-    data_rows = values[1:] # 2行目以降 
-    
-    # "condition" 列のインデックスを探す 
-    try: 
-        cond_idx = header.index("condition_pair") 
-    except ValueError: 
-        # ヘッダーに "condition" が無い場合はランダム 
+
+    header = values[0]
+    data_rows = values[1:]
+
+    try:
+        cond_idx = header.index("condition_pair")
+    except ValueError:
         return random.choice(CONDITIONS)
-    
-    
-    # 条件のカウント
-    counts = {str(c): 0 for c in CONDITIONS}
 
-    for row in data_rows: 
-        if len(row) <= cond_idx: 
-            continue 
-        cond = row[cond_idx] 
-        if cond in counts: 
-            counts[cond] += 1 
-    
-    # ログが実質ない場合 
-    if all(v == 0 for v in counts.values()): 
-        return random.choice(CONDITIONS) 
-        
-    # 最小値の条件を選ぶ 
-    min_count = min(counts.values()) 
-    candidates = [eval(c) for c, v in counts.items() if v == min_count] 
+    # カウント用辞書（キーは "A|B" 形式）
+    counts = {"|".join(c): 0 for c in CONDITIONS}
 
-    return random.choice(candidates)
+    for row in data_rows:
+        if len(row) <= cond_idx:
+            continue
+        cond = row[cond_idx]
+        if cond in counts:
+            counts[cond] += 1
+
+    # 全部 0 の場合
+    if all(v == 0 for v in counts.values()):
+        return random.choice(CONDITIONS)
+
+    # 最小値の条件を選ぶ
+    min_count = min(counts.values())
+    candidates = [c for c, v in counts.items() if v == min_count]
+
+    # "A|B" → ("A","B") に戻す
+    chosen = random.choice(candidates)
+    condA, condB = chosen.split("|")
+
+    return (condA, condB)
 
 # =====================
 # 初期化
