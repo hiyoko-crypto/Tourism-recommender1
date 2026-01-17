@@ -96,19 +96,25 @@ def save_log(data):
     )
     client = gspread.authorize(creds)
 
-    # スプレッドシートを開く
     sheet = client.open_by_key(
         st.secrets["gcp_service_account"]["sheet_id"]
     ).sheet1
 
-    # ヘッダーがなければ作成
+    # 既存のヘッダーを取得
     existing = sheet.get_all_values()
+
     if len(existing) == 0:
-        sheet.append_row(list(data.keys()))
+        # 初回：ヘッダーを固定順で作成
+        header = list(data.keys())
+        sheet.append_row(header)
+    else:
+        # 2回目以降：既存ヘッダーを使う
+        header = existing[0]
 
-    # データを追加
-    sheet.append_row(list(data.values()))
+    # ヘッダー順にデータを並べる
+    row = [data.get(col, "") for col in header]
 
+    sheet.append_row(row)
 
 # =====================
 # メイン処理
