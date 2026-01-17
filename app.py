@@ -251,7 +251,11 @@ def main():
     # Step 2: A/B 推薦比較 + 全観光地評価
     # =====================
     if st.session_state.step == 2:
-    
+        st.markdown("""
+            <script>
+                window.parent.document.querySelector('section.main').scrollTo(0, 0);
+            </script>
+        """, unsafe_allow_html=True)
         st.subheader("おすすめ観光地の比較（A/B）")
     
         # --- 条件ペアを取り出す ---
