@@ -385,11 +385,12 @@ def main():
                 key=f"visited_{spot}"
             )
     
-            likability = st.slider(
-                f"{spot} に行ってみたいと思いましたか？",
-                1, 5, 3,
-                key=f"like_{spot}"
-            )
+            if visited == "行ったことがある":
+                label = f"{spot} にまた行きたいと思いましたか？"
+            else:
+                label = f"{spot} に行ってみたいと思いましたか？"
+            
+            likability = st.slider(label, 1, 5, 3)
     
             st.session_state.spot_questions[spot] = {
                 "likability": likability,
