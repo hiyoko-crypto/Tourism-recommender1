@@ -304,11 +304,13 @@ def main():
     
         # --- 表示用に整形 ---
         dfA = recA.copy()
+        dfA = dfA.drop(columns=["スコア"], errors="ignore")
         dfA.index = range(1, len(dfA) + 1)
         if "スコア" in dfA.columns:
             dfA["スコア"] = dfA["スコア"].round(3)
     
         dfB = recB.copy()
+        dfB = dfB.drop(columns=["スコア"], errors="ignore")
         dfB.index = range(1, len(dfB) + 1)
         if "スコア" in dfB.columns:
             dfB["スコア"] = dfB["スコア"].round(3)
