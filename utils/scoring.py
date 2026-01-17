@@ -66,7 +66,10 @@ def compute_user_preference(
     aspect_scores = pd.Series(aspect_scores)
 
     # 正規化（総和 = 1）
-    weights = aspect_scores / aspect_scores.sum()
+    if aspect_scores.sum() == 0:
+        weights = aspect_scores.copy()
+    else:
+        weights = aspect_scores / aspect_scores.sum()
 
     # ============================
     # 推薦に使う観点集合（条件分岐）
