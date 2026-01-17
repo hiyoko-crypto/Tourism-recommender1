@@ -295,6 +295,13 @@ def main():
                     st.caption("口コミURLは登録されていません")
 
             # ▼ トグルの外に質問を置く（ここがポイント）
+            visited = st.radio(
+                "この観光地に行ったことはありますか？",
+                ["行ったことがある", "行ったことがない"],
+                key=f"visited_{spot}"
+            )
+            st.caption("※ 行ったことがある場合は「また行きたいか」、ない場合は「行ってみたいか」で評価してください")
+            
             likability = st.slider(
                 f"{spot} に行ってみたいと思いましたか？",
                 1, 5, 3,
@@ -307,6 +314,7 @@ def main():
 
             st.session_state.spot_questions[spot] = {
                 "likability": likability,
+                "visited": visited
             }
 
 
