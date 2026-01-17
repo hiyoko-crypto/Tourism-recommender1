@@ -468,26 +468,27 @@ def main():
         # ============================ 
         # A の観点スコア表示 
         # ============================ 
-        # A の観点スコア表示
         st.markdown("## リスト A の観点スコア") 
         
-        user_pref_A = st.session_state.user_pref_A
+        rawA = st.session_state.user_pref_A
         
         # 1. まず Series に落とす
-        if isinstance(user_pref_A, pd.DataFrame):
-            if user_pref_A.shape[0] == 1:
-                sA = user_pref_A.iloc[0]        # 1行×n列 → 行を取る
-            elif user_pref_A.shape[1] == 1:
-                sA = user_pref_A.iloc[:, 0]     # n行×1列 → 列を取る
+        if isinstance(rawA, pd.DataFrame):
+            if rawA.shape[0] == 1:
+                sA = rawA.iloc[0]        # 1行×n列 → 行を取る
+            elif rawA.shape[1] == 1:
+                sA = rawA.iloc[:, 0]     # n行×1列 → 列を取る
             else:
                 # 想定外だが、とりあえず最初の行を使う
-                sA = user_pref_A.iloc[0]
+                sA = rawA.iloc[0]
         else:
-            sA = user_pref_A  # すでに Series の場合
+            sA = rawA  # すでに Series の場合
         
         # 2. Series → DataFrame にして整形
         dfA = sA.to_frame(name="スコア")
-        dfA["スコア"] = dfA["スコア"].astype(float).round(3)
+        dfA["スコア"] = pd.to_numeric(dfA["スコア"], errors="coerce")
+        dfA = dfA.dropna()
+        dfA["スコア"] = dfA["スコア"].round(3)
         dfA = dfA.sort_values("スコア", ascending=False)
         
         dfA["元々興味あり"] = dfA.index.map(
@@ -522,23 +523,25 @@ def main():
         # B の観点スコア表示
         st.markdown("## リスト B の観点スコア") 
         
-        user_pref_B = st.session_state.user_pref_B
+        rawB = st.session_state.user_pref_B
         
         # 1. まず Series に落とす
-        if isinstance(user_pref_B, pd.DataFrame):
-            if user_pref_B.shape[0] == 1:
-                sB = user_pref_B.iloc[0]        # 1行×n列 → 行を取る
-            elif user_pref_B.shape[1] == 1:
-                sB = user_pref_B.iloc[:, 0]     # n行×1列 → 列を取る
+        if isinstance(rawB, pd.DataFrame):
+            if rawB.shape[0] == 1:
+                sB = rawB.iloc[0]        # 1行×n列 → 行を取る
+            elif rawB.shape[1] == 1:
+                sB = rawB.iloc[:, 0]     # n行×1列 → 列を取る
             else:
                 # 想定外だが、とりあえず最初の行を使う
-                sB = user_pref_B.iloc[0]
+                sB = rawB.iloc[0]
         else:
-            sB = user_pref_B  # すでに Series の場合
+            sB = rawB  # すでに Series の場合
         
         # 2. Series → DataFrame にして整形
         dfB = sB.to_frame(name="スコア")
-        dfB["スコア"] = dfB["スコア"].astype(float).round(3)
+        dfB["スコア"] = pd.to_numeric(dfB["スコア"], errors="coerce") 
+        dfB = dfB.dropna()
+        dfB["スコア"] = dfB["スコア"].round(3)
         dfB = dfB.sort_values("スコア", ascending=False)
         
         dfB["元々興味あり"] = dfB.index.map(
