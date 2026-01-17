@@ -379,8 +379,6 @@ def main():
         df["スコア"] = df["総合スコア"].round(3)
         df.index = range(1, len(df) + 1)
 
-        df = st.session_state.user_pref.copy()
-
         df["元々興味あり"] = df["観点"].apply(
             lambda v: "◯" if v in st.session_state.selected_viewpoints else ""
         )
