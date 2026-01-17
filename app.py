@@ -2,6 +2,7 @@ import streamlit as st
 import json
 import uuid, random, csv, os
 from datetime import datetime
+import pandas as pd
 
 from utils.load_data import load_all, load_viewpoint_descriptions, load_spot_urls
 from utils.scoring import compute_user_preference, recommend_spots
