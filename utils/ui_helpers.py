@@ -36,8 +36,8 @@ def show_aspect_eval(label, user_pref_df, selected_viewpoints):
     st.table(df[["観点", "スコア", "元々興味あり"]])
 
     match = st.slider(f"{label} はあなた自身の認識と一致していると感じましたか？", 1, 5, 3)
-    accept = st.slider("表示された観点の中に、意外だと感じたものはありましたか？", 1, 5, 3)
-    friendly = st.slider("なぜこれらの観光地が推薦されたのか、理解しやすかったですか？", 1, 5, 3)
+    accept = st.slider(f"{label} で表示された観点の中に、意外だと感じたものはありましたか？", 1, 5, 3)
+    friendly = st.slider(f"{label} に関してなぜこれらの観光地が推薦されたのか、理解しやすかったですか？", 1, 5, 3)
     comment = st.text_area(f"{label} に関してよかった点悪かった点があればご記入ください", height=120)
 
     return match, accept, friendly, comment
