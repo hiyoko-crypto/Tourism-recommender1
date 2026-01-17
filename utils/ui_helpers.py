@@ -22,4 +22,5 @@ def overall_eval_ui(label, dfA):
     sat = st.slider(f"{label} の推薦結果の満足度", 1, 5, 3)
     discover = st.slider(f"{label} に新規性はありましたか？", 1, 5, 3)
     favor = st.slider(f"{label} は好みに合っていましたか？", 1, 5, 3)
+    st.markdown("---")
     return sat, discover, favor
