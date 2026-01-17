@@ -572,7 +572,7 @@ def main():
             horizontal=True,
         )
         aspect_comment_compare = st.text_area(
-            "A, B両方の「あなたの好みの観点」について、良いと感じた点や違和感を覚えた点があれば自由にお書きください。",
+            "A, B両方の「観点リスト」について、良いと感じた点や違和感を覚えた点があれば自由にお書きください。",
             height=150 
         )        
 
