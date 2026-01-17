@@ -3,7 +3,7 @@ import json
 import uuid, random, csv, os
 from datetime import datetime
 import pandas as pd
-
+from utils.ui_helpers import show_ab_tables
 from utils.load_data import load_all, load_viewpoint_descriptions, load_spot_urls
 from utils.scoring import compute_user_preference, recommend_spots
 import gspread
@@ -317,15 +317,7 @@ def main():
             dfB["スコア"] = dfB["スコア"].round(3)
     
         # --- A/B を横並びで表示 ---
-        colA, colB = st.columns(2)
-    
-        with colA:
-            st.markdown(f"### リスト A")
-            st.table(dfA)
-    
-        with colB:
-            st.markdown(f"### リスト B")
-            st.table(dfB)
+        show_ab_tables(dfA, dfB)
     
         st.markdown("---")
     
@@ -429,15 +421,7 @@ def main():
         # A/B 比較
         # ============================
         # --- A/B を横並びで表示 ---
-        colA, colB = st.columns(2)
-
-        with colA:
-            st.markdown("### リスト A")
-            st.table(dfA)
-        
-        with colB:
-            st.markdown("### リスト B")
-            st.table(dfB)
+        show_ab_tables(dfA, dfB)
         
         st.subheader("どちらの推薦リストが良いと思いましたか？")
     
@@ -593,15 +577,8 @@ def main():
         dfA = st.session_state.dfA
         dfB = st.session_state.dfB
         
-        colA, colB = st.columns(2)
-        
-        with colA:
-            st.markdown("### リスト A")
-            st.table(dfA)
-        
-        with colB:
-            st.markdown("### リスト B")
-            st.table(dfB)
+        show_ab_tables(dfA, dfB)
+
         aspect_comment_compare = st.text_area(
             "A, B両方の「観点リスト」について、良いと感じた点や違和感を覚えた点があれば自由にお書きください。",
             height=150 
