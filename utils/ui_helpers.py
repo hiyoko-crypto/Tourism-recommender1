@@ -15,21 +15,9 @@ def show_ab_tables(dfA, dfB, titleA="リスト A", titleB="リスト B"):
         st.markdown(f"### {titleB}")
         st.table(dfB)
 
-def show_top_viewpoint_scores(spot, spot_scores, top_n=5):
-    df = spot_scores.copy()
-    cols = [c for c in df.columns if c != "スポット"]
-
-    for col in cols:
-        s = df[col].astype(float)
-        df[col] = 0.5 if s.max() == s.min() else (s - s.min()) / (s.max() - s.min())
-
-    detail = (
-        df[df["スポット"] == spot]
-        .drop(columns=["スポット"])
-        .T
-        .rename(columns={0: "スコア"})
-        .sort_values("スコア", ascending=False)
-        .head(top_n)
-        .round(3)
-    )
-    st.table(detail)
+def overall_eval_ui(label):
+    st.subheader(f"{label} の全体評価")
+    sat = st.slider(f"{label} の推薦結果の満足度", 1, 5, 3)
+    discover = st.slider(f"{label} に新規性はありましたか？", 1, 5, 3)
+    favor = st.slider(f"{label} は好みに合っていましたか？", 1, 5, 3)
+    return sat, discover, favor
