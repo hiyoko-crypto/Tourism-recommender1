@@ -253,7 +253,7 @@ def main():
     if st.session_state.step == 2:
         st.markdown("""
             <script>
-                window.parent.document.querySelector('section.main').scrollTo(0, 0);
+                window.parent.document.querySelector('main').scrollTo(0, 0);
             </script>
         """, unsafe_allow_html=True)
         st.subheader("おすすめ観光地の比較（A/B）")
@@ -458,7 +458,7 @@ def main():
         # Step3 の最初に追加
         st.markdown("""
             <script>
-                window.parent.document.querySelector('section.main').scrollTo(0, 0);
+                window.parent.document.querySelector('main').scrollTo(0, 0);
             </script>
         """, unsafe_allow_html=True)
     
