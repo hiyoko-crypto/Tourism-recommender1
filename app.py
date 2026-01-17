@@ -455,10 +455,11 @@ def main():
     # =====================
     if st.session_state.step == 3:
 
-        # Step3 の最初に追加
         st.markdown("""
             <script>
-                window.parent.document.querySelector('main').scrollTo(0, 0);
+                setTimeout(function() {
+                    window.parent.document.querySelector('section.main').scrollTo(0, 0);
+                }, 50);
             </script>
         """, unsafe_allow_html=True)
     
