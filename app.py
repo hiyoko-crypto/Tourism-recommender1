@@ -253,7 +253,7 @@ def main():
         st.subheader("おすすめ観光地の比較（A/B）")
     
         # --- 条件ペアを取り出す ---
-        condA, condB = row[cond_idx].split("|")
+        condA, condB = st.session_state.condition_pair
     
         # --- A のユーザ嗜好を計算 ---
         user_pref_A, topkA = compute_user_preference(
