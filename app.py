@@ -47,7 +47,7 @@ def get_condition_from_log():
     
     # "condition" 列のインデックスを探す 
     try: 
-        cond_idx = header.index("condition") 
+        cond_idx = header.index("condition_pair") 
     except ValueError: 
         # ヘッダーに "condition" が無い場合はランダム 
         return random.choice(CONDITIONS)
@@ -136,10 +136,8 @@ def save_log(data):
 def main():
     st.title("観光地推薦システム（実験）")
 
-    is_aspect = False
     if "condition" in st.session_state:
-        is_aspect = st.session_state.condition.startswith("aspect")
-    spot_url_dict = load_spot_urls()
+        spot_url_dict = load_spot_urls()
 
     # =====================
     # Step 0: 説明・同意
@@ -158,7 +156,7 @@ def main():
             if st.button("実験を開始する"):
                 st.session_state.name = name
                 st.session_state.age_group = age_group
-                st.session_state.condition = get_condition_from_log()
+                st.session_state.condition_pair = get_condition_from_log()
                 st.session_state.step = 1
                 st.rerun()
         return
@@ -234,17 +232,14 @@ def main():
                 st.error(f"観光地をちょうど 5 件選択してください。（現在: {len(visited_spots)} 件）") 
                 st.stop() 
 
-            if is_aspect: 
-                for spot in visited_spots: 
-                    if len(spot_feedback[spot]["viewpoints"]) == 0: 
-                        st.error(f"{spot} の良かった観点を少なくとも1つ選んでください。") 
-                        st.stop()
+            for spot in visited_spots: 
+                if len(spot_feedback[spot]["viewpoints"]) == 0: 
+                    st.error(f"{spot} の良かった観点を少なくとも1つ選んでください。") 
+                    st.stop()
 
             st.session_state.selected_viewpoints = selected_viewpoints
             st.session_state.visited_spots = visited_spots
             st.session_state.spot_feedback = spot_feedback
-
-            st.session_state.condition_pair = st.session_state.condition
 
             st.session_state.step = 2
             st.rerun()
