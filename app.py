@@ -35,23 +35,39 @@ def get_condition_from_log():
     ).sheet1
 
     # 全データ取得
-    rows = sheet.get_all_records()
+    values = sheet.get_all_values()
 
     # ログがまだ無い場合
-    if len(rows) == 0:
+    if len(values) <= 1:
         return random.choice(CONDITIONS)
-
+    header = values[0] # 1行目 
+    data_rows = values[1:] # 2行目以降 
+    
+    # "condition" 列のインデックスを探す 
+    try: 
+        cond_idx = header.index("condition") 
+    except ValueError: 
+        # ヘッダーに "condition" が無い場合はランダム 
+        return random.choice(CONDITIONS)
+    
+    
     # 条件のカウント
     counts = {c: 0 for c in CONDITIONS}
 
-    for row in rows:
-        cond = row.get("condition")
-        if cond in counts:
-            counts[cond] += 1
-
-    # 最小値の条件を選ぶ
-    min_count = min(counts.values())
-    candidates = [c for c, v in counts.items() if v == min_count]
+    for row in data_rows: 
+        if len(row) <= cond_idx: 
+            continue 
+        cond = row[cond_idx] 
+        if cond in counts: 
+            counts[cond] += 1 
+    
+    # ログが実質ない場合 
+    if all(v == 0 for v in counts.values()): 
+        return random.choice(CONDITIONS) 
+        
+    # 最小値の条件を選ぶ 
+    min_count = min(counts.values()) 
+    candidates = [c for c, v in counts.items() if v == min_count] 
 
     return random.choice(candidates)
 
