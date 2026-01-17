@@ -33,7 +33,7 @@ def compute_user_preference(
     # ============================
     df_norm = df.copy()
     for col in viewpoint_cols:
-        df_norm[col] = minmax(df[col])
+        df_norm[col] = minmax(df_norm[col])
 
     # ============================
     # ユーザ嗜好観点スコア算出
@@ -133,7 +133,7 @@ def recommend_spots(
     # --- min-max 正規化 ---
     df_norm = spot_scores.copy()
     for col in viewpoint_cols:
-        df_norm[col] = minmax(df[col])
+        df_norm[col] = minmax(df_norm[col])
 
     # --- ユーザ嗜好重み ---
     weights = user_pref_df.set_index("観点")["総合スコア"]
