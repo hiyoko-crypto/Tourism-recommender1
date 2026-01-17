@@ -136,8 +136,7 @@ def save_log(data):
 def main():
     st.title("観光地推薦システム（実験）")
 
-    if "condition" in st.session_state:
-        spot_url_dict = load_spot_urls()
+    spot_url_dict = load_spot_urls()
 
     # =====================
     # Step 0: 説明・同意
