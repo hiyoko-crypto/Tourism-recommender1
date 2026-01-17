@@ -15,8 +15,10 @@ def show_ab_tables(dfA, dfB, titleA="リスト A", titleB="リスト B"):
         st.markdown(f"### {titleB}")
         st.table(dfB)
 
-def overall_eval_ui(label):
-    st.subheader(f"{label} の全体評価")
+def overall_eval_ui(label, dfA):
+    st.subheader(f"リスト {label} の全体評価") 
+    st.markdown("---")
+    st.table(dfA)
     sat = st.slider(f"{label} の推薦結果の満足度", 1, 5, 3)
     discover = st.slider(f"{label} に新規性はありましたか？", 1, 5, 3)
     favor = st.slider(f"{label} は好みに合っていましたか？", 1, 5, 3)
