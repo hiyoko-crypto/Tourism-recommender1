@@ -3,7 +3,7 @@ import json
 import uuid, random, csv, os
 from datetime import datetime
 import pandas as pd
-from utils.ui_helpers import show_ab_tables
+from utils.ui_helpers import show_ab_tables, show_aspect_eval, overall_eval_ui
 from utils.load_data import load_all, load_viewpoint_descriptions, load_spot_urls
 from utils.scoring import compute_user_preference, recommend_spots
 import gspread
@@ -455,72 +455,17 @@ def main():
         # ============================ 
         # A の観点スコア表示 
         # ============================ 
-        st.markdown("## リスト A の観点スコア") 
-        
-        dfA = st.session_state.user_pref_A.copy()
-        dfA["スコア"] = dfA["総合スコア"].round(3)
-        dfA["元々興味あり"] = dfA["観点"].apply(
-            lambda v: "◯" if v in st.session_state.selected_viewpoints else ""
+        match_A, accept_A, friendly_A, comment_A = show_aspect_eval(
+            "A", st.session_state.user_pref_A, st.session_state.selected_viewpoints 
         )
-        st.table(dfA[["観点", "スコア", "元々興味あり"]])
-
-        st.markdown("### A の観点スコアに関する評価")
-
-        match_A = st.slider(
-            "この「Aの観点リスト」は、あなた自身の認識と一致していると感じましたか？",
-            1, 5, 3,
-            key="match_A"
-        )
-        accept_A = st.slider(
-            "表示された観点の中に、意外だと感じたものはありましたか？",
-            1, 5, 3,
-            key="accept_A"
-        )
-        friendly_A = st.slider(
-            "なぜこれらの観光地が推薦されたのか、理解しやすかったですか？",
-            1, 5, 3,
-            key="friendly_A"
-        )
-        aspect_comment_A = st.text_area(
-            "今回の「Aの観点リスト」について、良いと感じた点や違和感を覚えた点があれば自由にお書きください。",
-            height=120 
-        )        
         st.markdown("---")
 
         # ============================ 
         # B の観点スコア表示 
         # ============================ 
-        # B の観点スコア表示
-        st.markdown("## リスト B の観点スコア") 
-        
-        dfB = st.session_state.user_pref_B.copy()
-        dfB["スコア"] = dfB["総合スコア"].round(3)
-        dfB["元々興味あり"] = dfB["観点"].apply(
-            lambda v: "◯" if v in st.session_state.selected_viewpoints else ""
+        match_B, accept_B, friendly_B, comment_B = show_aspect_eval(
+            "B", st.session_state.user_pref_B, st.session_state.selected_viewpoints 
         )
-        st.table(dfB[["観点", "スコア", "元々興味あり"]])
-
-        st.markdown("### B の観点スコアに関する評価")
-        
-        match_B = st.slider(
-            "この「Bの観点リスト」は、あなた自身の認識と一致していると感じましたか？",
-            1, 5, 3,
-            key="match_B"
-        )
-        accept_B = st.slider(
-            "表示された観点の中に、意外だと感じたものはありましたか？",
-            1, 5, 3,
-            key="accept_B"
-        )
-        friendly_B = st.slider(
-            "なぜこれらの観光地が推薦されたのか、理解しやすかったですか？",
-            1, 5, 3,
-            key="friendly_B"
-        )
-        aspect_comment_B = st.text_area(
-            "今回の「Bの観点リスト」について、良いと感じた点や違和感を覚えた点があれば自由にお書きください。",
-            height=120 
-        )        
         st.markdown("---")
 
         st.markdown("## A/B の観点スコアの比較")
