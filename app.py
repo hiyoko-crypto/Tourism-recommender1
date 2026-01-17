@@ -375,11 +375,11 @@ def main():
 
         df = st.session_state.user_pref.copy()
 
-        df["興味あり"] = df["観点"].apply(
+        df["元々興味あり"] = df["観点"].apply(
             lambda v: "◯" if v in st.session_state.selected_viewpoints else ""
         )
 
-        st.table(df[["観点", "総合スコア", "興味あり"]])
+        st.table(df[["観点", "スコア", "元々興味あり"]])
 
         st.markdown("---")
 
