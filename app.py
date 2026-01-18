@@ -273,18 +273,21 @@ def main():
             for j, col in enumerate(cols):
                 if i + j < len(viewpoint_list):
                     vp = viewpoint_list[i + j]
-                    with col:
-                        with st.expander(vp):   # ← ここを expander にする
-                            checked = st.checkbox(vp, key=f"vp_{vp}")
-                            if checked:
-                                selected_viewpoints.append(vp)
-        
+                    with cols:
+
+                        # ① チェックボックスは外に出す
+                        checked = st.checkbox(vp, key=f"vp_{vp}")
+                        if checked:
+                            selected_viewpoints.append(vp)
+                    
+                        # ② 説明だけ expander に入れる
+                        with st.expander("説明を見る"):
                             desc = viewpoint_descriptions.get(vp, f"{vp} の説明文は準備中です")
                             lines = desc.splitlines()
-        
+                    
                             for line in lines[:3]:
                                 st.caption(line)
-        
+                    
                             if len(lines) > 3:
                                 with st.expander("続きを見る"):
                                     for line in lines[3:]:
