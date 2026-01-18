@@ -534,6 +534,11 @@ def main():
                 "5: B がよい"
             ]
         )
+
+        ab_why = st.text_area(
+            "上のように判断した理由を教えてください。できれば、判断の決め手になった 観光地名 を挙げてください。",
+            height=150,
+        )
     
         ab_comment = st.text_area(
             "A/B 比較についてコメントがあれば自由にお書きください",
@@ -548,6 +553,7 @@ def main():
             st.session_state.favor_B = favor_B
         
             st.session_state.ab_choice = ab_choice
+            st.session_state.ab_why = ab_why
             st.session_state.ab_comment = ab_comment
 
             st.session_state.dfA = dfA
@@ -589,7 +595,11 @@ def main():
             "どちらの観点リストが、あなたの感覚に近いですか？", 
             ["A の方が近い", "どちらかというと A", "どちらとも言えない", "どちらかというと B", "B の方が近い"], 
             horizontal=True,
-        )        
+        )     
+        match_why = st.text_area(
+            "上のように判断した理由を、具体的な観点名を挙げて教えてください。", 
+            height=150 
+        )
         accept_compare = st.radio(
             "どちらの方が意外な観点が上位に来ていましたか？", 
             ["A の方が意外", "どちらかというと A", "どちらとも言えない", "どちらかというと B", "B の方が意外"], 
@@ -632,9 +642,11 @@ def main():
                 "spot_questions": json.dumps(st.session_state.spot_questions, ensure_ascii=False),
 
                 "ab_choice": st.session_state.ab_choice, 
+                "ab_why": st.session_state.ab_why,
                 "ab_comment": st.session_state.ab_comment,
 
                 "match_compare": match_compare,
+                "match_why": match_why,
                 "accept_compare": accept_compare,
                 "aspect_comment_compare": aspect_comment_compare,
 
