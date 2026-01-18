@@ -488,7 +488,7 @@ def main():
 
         prefA = st.session_state.user_pref_A
         prefB = st.session_state.user_pref_B
-        show_ab_tables(dfA, dfB)
+        show_ab_tables(prefA, prefB)
 
         match_compare = st.radio(
             "どちらの観点スコアが、あなたの感覚に近いですか？", 
