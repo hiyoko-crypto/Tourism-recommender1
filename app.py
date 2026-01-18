@@ -228,8 +228,7 @@ def main():
     # =====================
     if st.session_state.step == 1:
 
-        st.subheader("旅行で大事にしたいポイントを選んでください（1つ以上）")
-        st.caption("あなたが旅行先を選ぶときに「ここが大事だな」と思うポイントを教えてください。")
+        st.subheader("あなたが旅行先を選ぶときに「ここが大事だな」と思うポイントを教えてください。（1つ以上）")
         st.caption("（例：自然が好き、歴史が好き、食べ歩きが好き など）")
         st.caption("意味が分からない観点だけ、必要に応じて説明を確認してください。")
 
@@ -246,16 +245,20 @@ def main():
                 vp = viewpoint_list[i]
         
                 with cols[0]:
-                    with st.expander(vp):   # ← ここを expander にする
-                        checked = st.checkbox(vp, key=f"vp_{vp}")
-                        if checked:
-                            selected_viewpoints.append(vp)
-        
+
+                    # ① チェックボックスは外に出す
+                    checked = st.checkbox(vp, key=f"vp_{vp}")
+                    if checked:
+                        selected_viewpoints.append(vp)
+                
+                    # ② 説明だけ expander に入れる
+                    with st.expander("説明を見る"):
                         desc = viewpoint_descriptions.get(vp, f"{vp} の説明文は準備中です")
                         lines = desc.splitlines()
+                
                         for line in lines[:3]:
                             st.caption(line)
-        
+                
                         if len(lines) > 3:
                             with st.expander("続きを見る"):
                                 for line in lines[3:]:
