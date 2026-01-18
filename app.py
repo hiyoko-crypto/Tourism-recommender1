@@ -565,47 +565,41 @@ def main():
     # Step 3: 観点スコア（種明かし） + アンケート
     # =====================
     if st.session_state.step == 3:
-
-        st.markdown("""
-            <script>
-                setTimeout(function() {
-                    window.parent.document.querySelector('section.main').scrollTo(0, 0);
-                }, 50);
-            </script>
-        """, unsafe_allow_html=True)
     
         st.subheader("あなたの好みの「傾向」の推定結果")
-        st.write("ここでは、A と B の推薦で推定されたあなたの好みを表示します。こちらが最後のページになります。")
+        st.write("ここでは、A と B のおすすめ結果から推定した “あなたの好み” をまとめて表示します。これが最後のページです。")
 
         st.markdown("---")
-        st.markdown("## A/B の観点スコアの比較")
+        st.markdown("## A と B の “好みの傾向” の比較")
 
         prefA = st.session_state.user_pref_A
         prefB = st.session_state.user_pref_B
 
         prefA["元々興味あり"] = prefA["興味あり"].apply(lambda x: "〇" if x != 0 else "")
         prefB["元々興味あり"] = prefB["興味あり"].apply(lambda x: "〇" if x != 0 else "")
-        prefA = prefA[["観点", "総合スコア", "元々興味あり"]]
-        prefB = prefB[["観点", "総合スコア", "元々興味あり"]]
-        show_ab_tables(prefA, prefB)
+        prefA["あなたの好み"] = prefA["観点"]
+        prefB["あなたの好み"] = prefB["観点"]
+        prefA = prefA[["あなたの好み", "元々興味あり"]]
+        prefB = prefB[["あなたの好み", "元々興味あり"]]
+        show_ab_tables_aspect(prefA, prefB)
 
         match_compare = st.radio(
-            "どちらの観点リストが、あなたの感覚に近いですか？", 
+            "A と B のどちらの内容が実際の「あなたの好み」に近いと思いましたか？", 
             ["A の方が近い", "どちらかというと A", "どちらとも言えない", "どちらかというと B", "B の方が近い"], 
             horizontal=True,
         )     
         match_why = st.text_area(
-            "上のように判断した理由を、具体的な観点名を挙げて教えてください。", 
+            "上のように判断した理由を教えてください。どの「あなたの好み」をみて判断しましたか？", 
             height=150 
         )
         accept_compare = st.radio(
-            "どちらの方が意外な観点が上位に来ていましたか？", 
-            ["A の方が意外", "どちらかというと A", "どちらとも言えない", "どちらかというと B", "B の方が意外"], 
+            "どちらの方が “意外な好み” が多いと感じましたか？", 
+            ["A の方が多い", "どちらかというと A", "どちらとも言えない", "どちらかというと B", "B の方が多い"], 
             horizontal=True,
         )
 
         aspect_comment_compare = st.text_area(
-            "A, B両方の「観点リスト」について、良いと感じた点や違和感を覚えた点があれば自由にお書きください。",
+            "上のように判断した理由を教えてください。どの「あなたの好み」をみて判断しましたか？",
             height=150 
         )        
 
