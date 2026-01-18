@@ -228,54 +228,31 @@ def main():
     # =====================
     if st.session_state.step == 1:
 
-        st.subheader("旅行で大事にしたいポイントを選んでください（1つ以上）あなたが旅行先を選ぶときに「ここが大事だな」と思うポイントを教えてください。（例：自然が好き、歴史が好き、食べ歩きが好き など）"
-        )
-        st.caption("**基本的には読まなくて大丈夫です。** 意味が分からない観点だけ、必要に応じて説明を確認してください。")
+        st.subheader("旅行で大事にしたいポイントを選んでください（1つ以上）")
+        st.caption("あなたが旅行先を選ぶときに「ここが大事だな」と思うポイントを教えてください。")
+        st.caption("（例：自然が好き、歴史が好き、食べ歩きが好き など）")
+        st.caption("意味が分からない観点だけ、必要に応じて説明を確認してください。")
 
         selected_viewpoints = []
 
         for i in range(0, len(viewpoint_list), 3):
-        
+
             if i == 0:
                 st.markdown("### 自然資源")
         
             # i=9 のときだけ特別処理
             if i == 9:
                 cols = st.columns(3)
-                vp = viewpoint_list[i]  # 1つだけ表示
+                vp = viewpoint_list[i]
         
                 with cols[0]:
-                    checked = st.checkbox(vp, key=f"vp_{vp}")
-                    if checked:
-                        selected_viewpoints.append(vp)
-        
-                    desc = viewpoint_descriptions.get(vp, f"{vp} の説明文は準備中です")
-                    lines = desc.splitlines()
-                    for line in lines[:3]:
-                        st.caption(line)
-        
-                    if len(lines) > 3:
-                        with st.expander("続きを見る"):
-                            for line in lines[3:]:
-                                st.write(line)
-                    st.markdown("### 人文資源")
-        
-                # cols[1], cols[2] は空白のまま
-                continue  # ← 通常処理に戻らないようにする
-        
-            # 通常処理（3列表示）
-            cols = st.columns(3)
-            for j, col in enumerate(cols):
-                if i + j < len(viewpoint_list):
-                    vp = viewpoint_list[i + j]
-                    with col:
+                    with st.expander(vp):   # ← ここを expander にする
                         checked = st.checkbox(vp, key=f"vp_{vp}")
                         if checked:
                             selected_viewpoints.append(vp)
         
                         desc = viewpoint_descriptions.get(vp, f"{vp} の説明文は準備中です")
                         lines = desc.splitlines()
-        
                         for line in lines[:3]:
                             st.caption(line)
         
@@ -283,8 +260,35 @@ def main():
                             with st.expander("続きを見る"):
                                 for line in lines[3:]:
                                     st.write(line)
+        
+                    st.markdown("### 人文資源")
+        
+                continue
+        
+            # 通常処理（3列表示）
+            cols = st.columns(3)
+            for j, col in enumerate(cols):
+                if i + j < len(viewpoint_list):
+                    vp = viewpoint_list[i + j]
+                    with col:
+                        with st.expander(vp):   # ← ここを expander にする
+                            checked = st.checkbox(vp, key=f"vp_{vp}")
+                            if checked:
+                                selected_viewpoints.append(vp)
+        
+                            desc = viewpoint_descriptions.get(vp, f"{vp} の説明文は準備中です")
+                            lines = desc.splitlines()
+        
+                            for line in lines[:3]:
+                                st.caption(line)
+        
+                            if len(lines) > 3:
+                                with st.expander("続きを見る"):
+                                    for line in lines[3:]:
+                                        st.write(line)
+
                                     
-        st.subheader("行って良かった観光地を選んでください")
+        st.subheader("行って良かった観光地を5つ選んでください")
         st.caption("東京・関西・中国地方のどの地域から選んでも構いません。")
         
         visited_spots = []
