@@ -491,6 +491,8 @@ def main():
 
         prefA["元々興味あり"] = prefA["興味あり"].apply(lambda x: "〇" if x != 0 else "")
         prefB["元々興味あり"] = prefB["興味あり"].apply(lambda x: "〇" if x != 0 else "")
+        prefA = prefA[["観点", "総合スコア", "元々興味あり"]]
+        prefB = prefB[["観点", "総合スコア", "元々興味あり"]]
         show_ab_tables(prefA, prefB)
 
         match_compare = st.radio(
