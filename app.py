@@ -138,7 +138,7 @@ def save_log(data):
 # メイン処理
 # =====================
 def main():
-    st.title("観光地推薦システム（実験）")
+    st.title("観光地推薦システム")
 
     spot_url_dict = load_spot_urls()
 
@@ -208,22 +208,6 @@ def main():
                 st.rerun() 
             st.stop()
 
-        st.markdown("### 実験の進め方（説明書）")
-
-        st.image("images/step1.png")
-        st.markdown("""
-        **Step1：興味のある観点の選択**
-        - 全部で 22 の観点があります。この観点はジャンル（見るポイント）に近いです。 各観点には薄い文字で説明がついていますが、**基本的には読まなくて大丈夫です。**
-        - 意味が分からない観点だけ、必要に応じて説明を確認してください。
-        """)
-
-        st.image("images/step2.png")
-        st.markdown("""
-        **Step2：行って良かった観光地の選択**
-        - 東京・関西・中国地方のどの地域から選んでも構いません。 あなたが「行ってよかった」と感じたスポットを、**合計 5 件**選んでください。
-        """)
-
-        st.image("images/step3.png")
         st.markdown("""
         **Step3：各観光地に行ったことがあるのか**
         - 各観光地について当てはまるものを選んでください。
@@ -251,7 +235,11 @@ def main():
     # =====================
     if st.session_state.step == 1:
 
-        st.subheader("興味のある観点（ジャンル）を選んでください（1つ以上選択）")
+        st.subheader("### 旅行で大事にしたいポイントを選んでください（1つ以上）
+        あなたが旅行先を選ぶときに「ここが大事だな」と思うポイントを教えてください。
+        （例：自然が好き、歴史が好き、食べ歩きが好き など）"
+        )
+        st.caption("**基本的には読まなくて大丈夫です。** 意味が分からない観点だけ、必要に応じて説明を確認してください。")
 
         selected_viewpoints = []
 
@@ -306,6 +294,7 @@ def main():
                                     st.write(line)
                                     
         st.subheader("行って良かった観光地を選んでください")
+        st.caption("東京・関西・中国地方のどの地域から選んでも構いません。")
         
         visited_spots = []
         spot_feedback = {}
@@ -377,7 +366,9 @@ def main():
                 window.parent.document.querySelector('main').scrollTo(0, 0);
             </script>
         """, unsafe_allow_html=True)
-        st.subheader("おすすめ観光地の比較（A/B）")
+        st.subheader("おすすめ観光地の比較")
+        st.markdown("### これから 2つのおすすめリスト（A と B） を表示します。
+        どちらが あなたの好みに合っているか を直感的に選んでください。")
     
         # --- 条件ペアを取り出す ---
         condA, condB = st.session_state.condition_pair
@@ -449,6 +440,8 @@ def main():
         # ============================
     
         st.subheader("以下の観光地に行ったことがありますか？")
+        st.caption("観光地をクリックすると、その場所の特徴や、じゃらんの口コミページへのリンクが表示されます。
+        気になる観光地は、お調べいただいても構いません。")
     
         # --- A と B のスポットを統合（重複除去） ---
         spots_A = list(dfA["スポット"])
@@ -576,7 +569,7 @@ def main():
             </script>
         """, unsafe_allow_html=True)
     
-        st.subheader("あなたの好みの観点（推定結果）")
+        st.subheader("あなたの好みの「傾向」の推定結果")
         st.write("ここでは、A と B の推薦で推定されたあなたの好みを表示します。こちらが最後のページになります。")
 
         st.markdown("---")
