@@ -358,8 +358,7 @@ def main():
             </script>
         """, unsafe_allow_html=True)
         st.subheader("おすすめ観光地の比較")
-        st.markdown("### これから 2つのおすすめリスト（A と B） を表示します。
-        どちらが あなたの好みに合っているか を直感的に選んでください。")
+        st.markdown("### これから 2つのおすすめリスト（A と B） を表示します。どちらが あなたの好みに合っているか を直感的に選んでください。")
     
         # --- 条件ペアを取り出す ---
         condA, condB = st.session_state.condition_pair
