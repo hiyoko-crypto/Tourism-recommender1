@@ -6,7 +6,7 @@ def show_title(text):
 def info_box(label, content):
     st.info(f"**{label}**\n\n{content}")
 
-def show_ab_tables(dfA, dfB, titleA="リスト A", titleB="リスト B"):
+def show_ab_tables(dfA, dfB, titleA="観光地リスト A", titleB="観光地リスト B"):
     colA, colB = st.columns(2)
     with colA:
         st.markdown(f"### {titleA}")
@@ -19,8 +19,8 @@ def overall_eval_ui(label, dfA):
     st.subheader(f"リスト {label} の全体評価") 
     st.markdown("---")
     st.table(dfA)
-    sat = st.slider(f"{label} の推薦結果について、全体としてどの程度満足しましたか？", 1, 5, 3)
-    favor = st.slider(f"{label} の推薦結果は、あなたの好みや興味に合っていると感じましたか？", 1, 5, 3)
+    sat = st.slider(f"{label} のリストにどのくらい満足しましたか？", 1, 5, 3)
+    favor = st.slider(f"{label} のリストは、あなたの好みに合っていましたか？", 1, 5, 3)
     st.markdown("---")
     return sat, favor
 
