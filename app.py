@@ -256,6 +256,15 @@ def main():
         selected_viewpoints = []
 
         for i in range(0, len(viewpoint_list), 3):
+            # ======== 区切り見出しを入れる ========
+            if i == 0: 
+                st.markdown("### 自然・アウトドア") 
+            elif i == 6: 
+                st.markdown("### 文化・歴史") 
+            elif i == 12: 
+                st.markdown("### レジャー・施設") 
+            elif i == 18: 
+                st.markdown("### 食・街歩き")
             cols = st.columns(3)
             for j, col in enumerate(cols):
                 if i + j < len(viewpoint_list):
