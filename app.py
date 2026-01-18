@@ -172,7 +172,7 @@ def main():
                 "花道さん": { 
                     "name": "花道さん", 
                     "age_group": "20代", 
-                    "condition_pair": "noaspect_all|aspect_top5", 
+                    "condition_pair": ("noaspect_all", "aspect_top5"), 
                     "selected_viewpoints": ["テーマ公園・テーマ施設"], 
                     "visited_spots": ["東京スカイツリー", "東京ソラマチ", "明治神宮", "ユニバーサル・スタジオ・ジャパン（USJ）", "原爆ドーム"], 
                     "spot_feedback": {"東京スカイツリー": {"viewpoints": ["テーマ公園・テーマ施設"]}, "東京ソラマチ": {"viewpoints": ["テーマ公園・テーマ施設"]}, "明治神宮": {"viewpoints": ["神社・寺院・教会"]}, "ユニバーサル・スタジオ・ジャパン（USJ）": {"viewpoints": ["テーマ公園・テーマ施設"]}, "原爆ドーム": {"viewpoints": ["史跡"]}} 
