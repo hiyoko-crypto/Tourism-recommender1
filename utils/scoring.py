@@ -156,10 +156,15 @@ def recommend_spots(
         V = set(weights.index)
     elif condition == "noaspect_all":
         results = []
-        for _, row in df_norm.iterrows():
+        for idx, row in df_norm.iterrows():
             spot = row["スポット"]
-            score = row[viewpoint_cols].mean()
+            score = 0.0
+            for v in viewpoint_cols:
+                base = row[v]
+                rank_factor = rank_df.loc[idx, v]
+                score += base * rank_factor
             results.append({"スポット": spot, "スコア": score})
+    
         df_all = pd.DataFrame(results).sort_values("スコア", ascending=False)
     else:
         raise ValueError("Unknown condition")
