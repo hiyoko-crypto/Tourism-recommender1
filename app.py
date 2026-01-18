@@ -269,8 +269,6 @@ def main():
                     checked = st.checkbox(vp, key=f"vp_{vp}")
                     if checked:
                         selected_viewpoints.append(vp)
-
-                    st.markdown("### 人文資源")
         
                     desc = viewpoint_descriptions.get(vp, f"{vp} の説明文は準備中です")
                     lines = desc.splitlines()
@@ -281,6 +279,7 @@ def main():
                         with st.expander("続きを見る"):
                             for line in lines[3:]:
                                 st.write(line)
+                    st.markdown("### 人文資源")
         
                 # cols[1], cols[2] は空白のまま
                 continue  # ← 通常処理に戻らないようにする
