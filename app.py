@@ -480,61 +480,28 @@ def main():
         st.subheader("あなたの好みの観点（推定結果）")
         st.write("ここでは、A と B の推薦で推定されたあなたの好みを表示します。こちらが最後のページになります。")
 
-        # ============================ 
-        # A の観点スコア表示 
-        # ============================ 
-        match_A, accept_A, friendly_A, comment_A = show_aspect_eval(
-            "A", st.session_state.user_pref_A, st.session_state.selected_viewpoints 
-        )
         st.markdown("---")
-
-        # ============================ 
-        # B の観点スコア表示 
-        # ============================ 
-        match_B, accept_B, friendly_B, comment_B = show_aspect_eval(
-            "B", st.session_state.user_pref_B, st.session_state.selected_viewpoints 
-        )
-        st.markdown("---")
-
         st.markdown("## A/B の観点スコアの比較")
 
+        dfA = st.session_state.dfA
+        dfB = st.session_state.dfB
+        show_ab_tables(dfA, dfB)
+
         match_compare = st.radio(
-            "どちらの観点スコアの方が、あなた自身の認識とより一致していると感じましたか？",
-            [
-                "1: A が強く一致",
-                "2: A がやや一致",
-                "3: どちらとも言えない",
-                "4: B がやや一致",
-                "5: B が強く一致"
-            ],
+            "どちらの観点スコアが、あなたの感覚に近いですか？", 
+            ["A の方が近い", "どちらかというと A", "どちらとも言えない", "どちらかというと B", "B の方が近い"], 
             horizontal=True,
         )        
         accept_compare = st.radio(
-            "どちらの観点スコアの方が、意外性が多かったですか？",
-            [
-                "1: A が強く一致",
-                "2: A がやや一致",
-                "3: どちらとも言えない",
-                "4: B がやや一致",
-                "5: B が強く一致"
-            ],
+            "どちらの方が意外な観点が多かったですか？", 
+            ["A の方が意外", "やや A", "どちらとも言えない", "やや B", "B の方が意外"], 
             horizontal=True,
         )
         friendly_compare = st.radio(
-            "どちらの観点スコアの方が、それぞれの観光地が推薦された理由が理解しやすかったですか？",
-            [
-                "1: A が強く一致",
-                "2: A がやや一致",
-                "3: どちらとも言えない",
-                "4: B がやや一致",
-                "5: B が強く一致"
-            ],
+            "どちらの観点リストの方が、それぞれの観光地が推薦された理由を理解しやすかったですか？",
+            ["A の方が理解しやすい", "やや A", "どちらとも言えない", "やや B", "B の方が理解しやすい"], 
             horizontal=True,
         )
-        dfA = st.session_state.dfA
-        dfB = st.session_state.dfB
-        
-        show_ab_tables(dfA, dfB)
 
         aspect_comment_compare = st.text_area(
             "A, B両方の「観点リスト」について、良いと感じた点や違和感を覚えた点があれば自由にお書きください。",
@@ -573,16 +540,6 @@ def main():
 
                 "ab_choice": st.session_state.ab_choice, 
                 "ab_comment": st.session_state.ab_comment,
-                
-                "match_A": match_A,
-                "accept_A": accept_A,
-                "friendly_A": friendly_A,
-                "comment_A": comment_A,
-                
-                "match_B": match_B,
-                "accept_B": accept_B,
-                "friendly_B": friendly_B,
-                "comment_B": comment_B,
 
                 "match_compare": match_compare,
                 "accept_compare": accept_compare,
