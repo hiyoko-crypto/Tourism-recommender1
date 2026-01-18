@@ -368,7 +368,6 @@ def main():
             spot_scores=spot_scores,
             condition=condA,
             selected_viewpoints=st.session_state.selected_viewpoints,
-            top_k=5,
             visited_spots=st.session_state.visited_spots
         )
     
@@ -378,7 +377,6 @@ def main():
             spot_scores=spot_scores,
             condition=condB,
             selected_viewpoints=st.session_state.selected_viewpoints,
-            top_k=5,
             visited_spots=st.session_state.visited_spots
         )
     
