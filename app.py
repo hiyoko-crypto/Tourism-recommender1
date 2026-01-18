@@ -245,20 +245,16 @@ def main():
                 vp = viewpoint_list[i]
         
                 with cols[0]:
-
-                    # ① チェックボックスは外に出す
-                    checked = st.checkbox(vp, key=f"vp_{vp}")
-                    if checked:
-                        selected_viewpoints.append(vp)
-                
-                    # ② 説明だけ expander に入れる
-                    with st.expander("説明を見る"):
+                    with st.expander(vp):   # ← ここを expander にする
+                        checked = st.checkbox(vp, key=f"vp_{vp}")
+                        if checked:
+                            selected_viewpoints.append(vp)
+        
                         desc = viewpoint_descriptions.get(vp, f"{vp} の説明文は準備中です")
                         lines = desc.splitlines()
-                
                         for line in lines[:3]:
                             st.caption(line)
-                
+        
                         if len(lines) > 3:
                             with st.expander("続きを見る"):
                                 for line in lines[3:]:
@@ -274,23 +270,22 @@ def main():
                 if i + j < len(viewpoint_list):
                     vp = viewpoint_list[i + j]
                     with col:
-                        # ① チェックボックスは外に出す（常に見える）
-                        checked = st.checkbox(vp, key=f"vp_{vp}")
-                        if checked:
-                            selected_viewpoints.append(vp)
-                    
-                        # ② 説明だけ expander に入れる（必要な人だけ開く）
-                        with st.expander("説明を見る"):
+                        with st.expander(vp):   # ← ここを expander にする
+                            checked = st.checkbox(vp, key=f"vp_{vp}")
+                            if checked:
+                                selected_viewpoints.append(vp)
+        
                             desc = viewpoint_descriptions.get(vp, f"{vp} の説明文は準備中です")
                             lines = desc.splitlines()
-                    
+        
                             for line in lines[:3]:
                                 st.caption(line)
-                    
+        
                             if len(lines) > 3:
                                 with st.expander("続きを見る"):
                                     for line in lines[3:]:
                                         st.write(line)
+
 
                                     
         st.subheader("行って良かった観光地を5つ選んでください")
