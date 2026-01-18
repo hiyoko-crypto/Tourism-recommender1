@@ -488,6 +488,9 @@ def main():
 
         prefA = st.session_state.user_pref_A
         prefB = st.session_state.user_pref_B
+
+        prefA["元々興味あり"] = prefA["興味あり"].apply(lambda x: "〇" if x != 0 else "")
+        prefB["元々興味あり"] = prefB["興味あり"].apply(lambda x: "〇" if x != 0 else "")
         show_ab_tables(prefA, prefB)
 
         match_compare = st.radio(
