@@ -83,6 +83,9 @@ if "user_id" not in st.session_state:
 if "step" not in st.session_state:
     st.session_state.step = 0
 
+if "mode" not in st.session_state: 
+    st.session_state.mode = None
+
 
 # =====================
 # ログ保存
@@ -151,6 +154,59 @@ def main():
 
         ページをロードすると最初からになってしまうので、ロードしなおさないでください。
         """)
+
+        st.session_state.mode = st.radio( 
+            "実験モードを選んでください", 
+            [ "何も指示がない場合はこちらを選択", "管理者用" ] 
+        )
+
+        # ---------------------------- 
+        # 管理者用の場合：名前選択 
+        # ---------------------------- 
+        if st.session_state.mode == "管理者用":
+            admin_name = st.selectbox( 
+                "ユーザーを選択してください", ["花道さん", "太郎さん", "花子さん"] 
+            ) 
+            # 管理者用データをロード（あなたの保存済みデータをここで読み込む） 
+            admin_data = { 
+                "花道さん": { 
+                    "name": "花道さん", 
+                    "age_group": "20代", 
+                    "condition_pair": "noaspect_all | aspect_top5", 
+                    "selected_viewpoints": ["テーマ公園・テーマ施設"], 
+                    "visited_spots": ["東京スカイツリー", "東京ソラマチ", "明治神宮", "ユニバーサル・スタジオ・ジャパン（USJ）", "原爆ドーム"], 
+                    "spot_feedback": {"東京スカイツリー": {"viewpoints": ["テーマ公園・テーマ施設"]}, "東京ソラマチ": {"viewpoints": ["テーマ公園・テーマ施設"]}, "明治神宮": {"viewpoints": ["神社・寺院・教会"]}, "ユニバーサル・スタジオ・ジャパン（USJ）": {"viewpoints": ["テーマ公園・テーマ施設"]}, "原爆ドーム": {"viewpoints": ["史跡"]}} 
+                }, 
+                "太郎さん": { 
+                    "name": "太郎さん", 
+                    "age_group": "30代", 
+                    "condition_pair": "aspect_all | aspect_top5", 
+                    "selected_viewpoints": ["滝", "海岸・岬", "岩石・洞窟", "集落・街", "庭園・公園", "建造物", "テーマ公園・テーマ施設", "温泉", "食" ],
+                    "visited_spots": ["城崎温泉の町並み", "城崎温泉", "嚴島神社", "出雲大社", "おもちゃ王国"], 
+                    "spot_feedback": {"城崎温泉の町並み": {"viewpoints": ["食"]}, "城崎温泉": {"viewpoints": ["温泉"]}, "嚴島神社": {"viewpoints": ["神社・寺院・教会"]}, "出雲大社": {"viewpoints": ["食"]}, "おもちゃ王国": {"viewpoints": ["テーマ公園・テーマ施設"]}} 
+                }, 
+                "花子さん": { 
+                    "name": "花子さん", 
+                    "age_group": "20代", 
+                    "condition_pair": "noaspect_all | aspect_all", 
+                    "selected_viewpoints": ["テーマ公園・テーマ施設"], 
+                    "visited_spots": ["東京スカイツリー", "お台場", "ユニバーサル・スタジオ・ジャパン（USJ）", "錦帯橋", "しまなみ海道"], 
+                    "spot_feedback": {"東京スカイツリー": {"viewpoints": ["建造物"]}, "お台場": {"viewpoints": ["テーマ公園・テーマ施設"]}, "ユニバーサル・スタジオ・ジャパン（USJ）": {"viewpoints": ["テーマ公園・テーマ施設"]}, "錦帯橋": {"viewpoints": ["建造物"]}, "しまなみ海道": {"viewpoints": ["建造物"]}}
+                } 
+            }
+            selected_user = admin_data[admin_name]
+
+            if st.button("このユーザーで開始"): 
+                # Step1 をスキップして Step2 へ 
+                st.session_state.selected_viewpoints = selected_user["selected_viewpoints"] 
+                st.session_state.visited_spots = selected_user["visited_spots"] 
+                st.session_state.spot_feedback = selected_user["spot_feedback"] 
+                
+                # condition_pair もセット 
+                st.session_state.condition_pair = selected_user["condition_pair"] 
+                st.session_state.step = 2 
+                st.rerun() 
+            st.stop()
 
         st.markdown("### 実験の進め方（説明書）")
 
