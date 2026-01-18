@@ -290,19 +290,38 @@ def main():
                                     
         st.subheader("行って良かった観光地を5つ選んでください")
         st.caption("東京・関西・中国地方のどの地域から選んでも構いません。")
+        st.caption("全部を見る必要はありません。目についたものから直感で選んで大丈夫です。")
         
         visited_spots = []
         spot_feedback = {}
         
-        # 地域別の観光地一覧を横2列で表示
+        # 1ページあたりの件数
+        PAGE_SIZE = 20
+        
         for region, spots in spot_lists.items():
             with st.expander(region):
+        
+                # ページ数を計算
+                total = len(spots)
+                pages = (total + PAGE_SIZE - 1) // PAGE_SIZE
+        
+                # ページ番号をセッションに保存
+                page_key = f"page_{region}"
+                if page_key not in st.session_state:
+                    st.session_state[page_key] = 0
+        
+                page = st.session_state[page_key]
+        
+                # 今表示する範囲
+                start = page * PAGE_SIZE
+                end = min(start + PAGE_SIZE, total)
+                current_spots = spots[start:end]
         
                 # 横2列レイアウト
                 cols = st.columns(2)
         
-                for idx, spot in enumerate(spots):
-                    col = cols[idx % 2]   # 偶数→左列、奇数→右列
+                for idx, spot in enumerate(current_spots):
+                    col = cols[idx % 2]
         
                     with col:
                         checked = st.checkbox(spot, key=f"spot_{region}_{spot}")
@@ -315,9 +334,13 @@ def main():
                                 key=f"viewpoints_{spot}"
                             )
         
-                            spot_feedback[spot] = {
-                                "viewpoints": viewpoints
-                            }
+                            spot_feedback[spot] = {"viewpoints": viewpoints}
+        
+                # まだ次のページがある場合だけ「続きを見る」ボタンを表示
+                if end < total:
+                    if st.button("続きを見る", key=f"next_{region}"):
+                        st.session_state[page_key] += 1
+                        st.experimental_rerun()
 
                 
         # 右上に選択数を表示
