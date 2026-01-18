@@ -256,11 +256,36 @@ def main():
         selected_viewpoints = []
 
         for i in range(0, len(viewpoint_list), 3):
-            # ======== 区切り見出しを入れる ========
-            if i == 0: 
-                st.markdown("### 自然資源") 
-            elif i == 10: 
-                st.markdown("### 人文資源") 
+        
+            if i == 0:
+                st.markdown("### 自然資源")
+            elif i == 9:
+                st.markdown("### 人文資源")
+        
+            # i=9 のときだけ特別処理
+            if i == 9:
+                cols = st.columns(3)
+                vp = viewpoint_list[i]  # 1つだけ表示
+        
+                with cols[0]:
+                    checked = st.checkbox(vp, key=f"vp_{vp}")
+                    if checked:
+                        selected_viewpoints.append(vp)
+        
+                    desc = viewpoint_descriptions.get(vp, f"{vp} の説明文は準備中です")
+                    lines = desc.splitlines()
+                    for line in lines[:3]:
+                        st.caption(line)
+        
+                    if len(lines) > 3:
+                        with st.expander("続きを見る"):
+                            for line in lines[3:]:
+                                st.write(line)
+        
+                # cols[1], cols[2] は空白のまま
+                continue  # ← 通常処理に戻らないようにする
+        
+            # 通常処理（3列表示）
             cols = st.columns(3)
             for j, col in enumerate(cols):
                 if i + j < len(viewpoint_list):
@@ -269,18 +294,17 @@ def main():
                         checked = st.checkbox(vp, key=f"vp_{vp}")
                         if checked:
                             selected_viewpoints.append(vp)
-
+        
                         desc = viewpoint_descriptions.get(vp, f"{vp} の説明文は準備中です")
                         lines = desc.splitlines()
-
+        
                         for line in lines[:3]:
                             st.caption(line)
-
+        
                         if len(lines) > 3:
                             with st.expander("続きを見る"):
                                 for line in lines[3:]:
                                     st.write(line)
-
         st.subheader("行ってよかった観光地を5つ選んでください")
 
         spot_feedback = {}
