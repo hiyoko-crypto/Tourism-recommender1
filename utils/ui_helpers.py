@@ -16,11 +16,11 @@ def show_ab_tables(dfA, dfB, titleA="観光地リスト A", titleB="観光地リ
         st.table(dfB)
 
 def overall_eval_ui(label, dfA):
-    st.subheader(f"リスト {label} の全体評価") 
+    st.subheader(f"観光地リスト {label} の全体評価") 
     st.markdown("---")
     st.table(dfA)
-    sat = st.slider(f"{label} のリストにどのくらい満足しましたか？", 1, 5, 3)
-    favor = st.slider(f"{label} のリストは、あなたの好みに合っていましたか？", 1, 5, 3)
+    sat = st.slider(f"リスト{label} にどのくらい満足しましたか？", 1, 5, 3)
+    favor = st.slider(f"リスト{label} は、あなたの好みに合っていましたか？", 1, 5, 3)
     st.markdown("---")
     return sat, favor
 
