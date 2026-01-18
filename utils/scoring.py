@@ -26,6 +26,9 @@ def compute_user_preference(
     top_k,
     condition
 ):
+    # ============================
+    # 観点列の抽出
+    # ============================
     viewpoint_cols = [c for c in df.columns if c != "スポット"]
 
     # ============================
@@ -36,54 +39,47 @@ def compute_user_preference(
         df_norm[col] = minmax(df_norm[col])
 
     # ============================
-    # ユーザ嗜好観点スコア算出
+    # 22観点のスコアを初期化
     # ============================
-    aspect_scores = defaultdict(float)
+    aspect_scores = {v: 0.0 for v in viewpoint_cols}
     boost_rate = 1.2
+
+    # ============================
+    # まず weights を作るために「全観点の素スコア」を計算
+    # （topk を決めるために必要）
+    # ============================
+    tmp_scores = defaultdict(float)
 
     for spot in visited_spots:
         row = df_norm[df_norm["スポット"] == spot].iloc[0]
         good_viewpoints = spot_feedback[spot]["viewpoints"]
-
-        # 観光地内での観点順位
-        ranks = (
-            row[viewpoint_cols]
-            .sort_values(ascending=False)
-            .rank(method="first", ascending=False)
-        )
+        ranks = row[viewpoint_cols].rank(method="first", ascending=False)
 
         for v in viewpoint_cols:
-            base_score = row[v]
+            base = row[v]
             rank_factor = 1.0 / ranks[v]
-
-            score = base_score * rank_factor
+            score = base * rank_factor
 
             if v in good_viewpoints:
                 score *= boost_rate
 
-            aspect_scores[v] += score
+            tmp_scores[v] += score
 
-    aspect_scores = pd.Series(aspect_scores)
-
-    # 正規化（総和 = 1）
-    if aspect_scores.sum() == 0:
-        weights = aspect_scores.copy()
-    else:
-        weights = aspect_scores / aspect_scores.sum()
+    tmp_scores = pd.Series(tmp_scores)
 
     # ============================
-    # 推薦に使う観点集合（条件分岐）
+    # topk_viewpoints の決定（condition に応じて）
     # ============================
     if condition == "aspect_top5":
         topk_viewpoints = (
-            weights.sort_values(ascending=False)
+            tmp_scores.sort_values(ascending=False)
             .head(top_k)
             .index
             .tolist()
         )
 
     elif condition == "aspect_exclude_interest_top5":
-        filtered = weights.drop(selected_viewpoints, errors="ignore")
+        filtered = tmp_scores.drop(selected_viewpoints, errors="ignore")
         topk_viewpoints = (
             filtered.sort_values(ascending=False)
             .head(top_k)
@@ -92,23 +88,99 @@ def compute_user_preference(
         )
 
     elif condition == "aspect_all":
-        topk_viewpoints = list(weights.index)
+        topk_viewpoints = list(viewpoint_cols)
 
     elif condition == "noaspect_all":
-        topk_viewpoints = []
+        topk_viewpoints = []  # 全観点使うが boost はしない
 
     else:
         raise ValueError("Unknown condition")
 
     # ============================
-    # UI / ログ用（全観点ランキング）
+    # ここから本番：visited_spots を回して
+    # condition ごとに観点スコアを加算
     # ============================
-    weights_for_ui = weights.sort_values(ascending=False)
+    for spot in visited_spots:
+        row = df_norm[df_norm["スポット"] == spot].iloc[0]
+        good_viewpoints = spot_feedback[spot]["viewpoints"]
+        ranks = row[viewpoint_cols].rank(method="first", ascending=False)
+
+        # ----------------------------
+        # ① aspect_top5
+        # ----------------------------
+        if condition == "aspect_top5":
+            for v in viewpoint_cols:
+
+                # top5 か spot_feedback の観点だけ加算
+                if v not in topk_viewpoints and v not in good_viewpoints:
+                    continue
+
+                base = row[v]
+                rank_factor = 1.0 / ranks[v]
+                score = base * rank_factor
+
+                if v in good_viewpoints:
+                    score *= boost_rate
+
+                aspect_scores[v] += score
+
+        # ----------------------------
+        # ② noaspect_all（全観点・boostなし）
+        # ----------------------------
+        elif condition == "noaspect_all":
+            for v in viewpoint_cols:
+                base = row[v]
+                rank_factor = 1.0 / ranks[v]
+                score = base * rank_factor
+                aspect_scores[v] += score
+
+        # ----------------------------
+        # ③ aspect_all（全観点・boostあり）
+        # ----------------------------
+        elif condition == "aspect_all":
+            for v in viewpoint_cols:
+                base = row[v]
+                rank_factor = 1.0 / ranks[v]
+                score = base * rank_factor
+
+                if v in good_viewpoints:
+                    score *= boost_rate
+
+                aspect_scores[v] += score
+
+        # ----------------------------
+        # ④ aspect_exclude_interest_top5
+        # ----------------------------
+        elif condition == "aspect_exclude_interest_top5":
+            for v in viewpoint_cols:
+
+                # selected_viewpoints は除外
+                if v in selected_viewpoints:
+                    continue
+
+                # top5 か spot_feedback の観点だけ加算
+                if v not in topk_viewpoints and v not in good_viewpoints:
+                    continue
+
+                base = row[v]
+                rank_factor = 1.0 / ranks[v]
+                score = base * rank_factor
+
+                if v in good_viewpoints:
+                    score *= boost_rate
+
+                aspect_scores[v] += score
+
+    # ============================
+    # 最終的な観点スコアを DataFrame に
+    # ============================
+    aspect_scores = pd.Series(aspect_scores)
+    aspect_scores = aspect_scores.sort_values(ascending=False)
 
     result = pd.DataFrame({
-        "観点": weights_for_ui.index,
-        "総合スコア": weights_for_ui.values,
-        "興味あり": [1 if v in selected_viewpoints else 0 for v in weights_for_ui.index]
+        "観点": aspect_scores.index,
+        "総合スコア": aspect_scores.values,
+        "興味あり": [1 if v in selected_viewpoints else 0 for v in aspect_scores.index]
     }).reset_index(drop=True)
 
     return result, topk_viewpoints
