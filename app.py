@@ -304,7 +304,19 @@ def main():
                             with st.expander("続きを見る"):
                                 for line in lines[3:]:
                                     st.write(line)
-        st.subheader("行ってよかった観光地を5つ選んでください")
+        st.subheader("行って良かった観光地を選んでください")
+
+        keyword = st.text_input("検索して絞り込む")
+        
+        filtered_spots = [
+            s for s in spot_list if keyword.lower() in s.lower()
+        ]
+        
+        with st.expander("観光地一覧を開く"):
+            for spot in filtered_spots:
+                checked = st.checkbox(spot, key=f"spot_{spot}")
+                if checked:
+                    visited_spots.append(spot)
 
         spot_feedback = {}
         visited_spots = []
