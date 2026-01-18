@@ -345,22 +345,20 @@ def main():
         condA, condB = st.session_state.condition_pair
     
         # --- A のユーザ嗜好を計算 ---
-        user_pref_A, topkA = compute_user_preference(
+        user_pref_A = compute_user_preference(
             st.session_state.visited_spots,
             st.session_state.spot_feedback,
             spot_scores,
             st.session_state.selected_viewpoints,
-            top_k=5,
             condition=condA
         )
     
         # --- B のユーザ嗜好を計算 ---
-        user_pref_B, topkB = compute_user_preference(
+        user_pref_B = compute_user_preference(
             st.session_state.visited_spots,
             st.session_state.spot_feedback,
             spot_scores,
             st.session_state.selected_viewpoints,
-            top_k=5,
             condition=condB
         )
     
