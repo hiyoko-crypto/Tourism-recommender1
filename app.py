@@ -304,28 +304,37 @@ def main():
                             with st.expander("続きを見る"):
                                 for line in lines[3:]:
                                     st.write(line)
+                                    
         st.subheader("行って良かった観光地を選んでください")
-
+        
         visited_spots = []
         spot_feedback = {}
         
-        # 地域別の観光地一覧だけを表示
+        # 地域別の観光地一覧を横2列で表示
         for region, spots in spot_lists.items():
             with st.expander(region):
-                for spot in spots:
-                    checked = st.checkbox(spot, key=f"spot_{region}_{spot}")
-                    if checked:
-                        visited_spots.append(spot)
         
-                        viewpoints = st.multiselect(
-                            f"{spot} で良かった観点（1つ以上選択してください）",
-                            viewpoint_list,
-                            key=f"viewpoints_{spot}"
-                        )
+                # 横2列レイアウト
+                cols = st.columns(2)
         
-                        spot_feedback[spot] = {
-                            "viewpoints": viewpoints
-                        }
+                for idx, spot in enumerate(spots):
+                    col = cols[idx % 2]   # 偶数→左列、奇数→右列
+        
+                    with col:
+                        checked = st.checkbox(spot, key=f"spot_{region}_{spot}")
+                        if checked:
+                            visited_spots.append(spot)
+        
+                            viewpoints = st.multiselect(
+                                f"{spot} で良かった観点（1つ以上選択してください）",
+                                viewpoint_list,
+                                key=f"viewpoints_{spot}"
+                            )
+        
+                            spot_feedback[spot] = {
+                                "viewpoints": viewpoints
+                            }
+
                 
         # 右上に選択数を表示
         col_left, col_right = st.columns([1, 1])
