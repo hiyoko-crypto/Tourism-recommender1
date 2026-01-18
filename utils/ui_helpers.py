@@ -20,10 +20,9 @@ def overall_eval_ui(label, dfA):
     st.markdown("---")
     st.table(dfA)
     sat = st.slider(f"{label} の推薦結果について、全体としてどの程度満足しましたか？", 1, 5, 3)
-    discover = st.slider(f"{label} の推薦結果の中に、知らなかった観光地はどれくらいありましたか？", 1, 5, 3)
     favor = st.slider(f"{label} の推薦結果は、あなたの好みや興味に合っていると感じましたか？", 1, 5, 3)
     st.markdown("---")
-    return sat, discover, favor
+    return sat, favor
 
 def show_aspect_eval(label, user_pref_df, selected_viewpoints):
     st.markdown(f"## {label} の観点スコア")
