@@ -253,6 +253,9 @@ def main():
             )
 
         if st.button("次へ"):
+            if len(selected_viewpoints) == 0: 
+                st.error("興味のある観点を少なくとも 1 つ選んでください。") 
+                st.stop()
 
             if len(visited_spots) != 5:
                 st.error(f"観光地をちょうど 5 つ選択してください。（現在: {len(visited_spots)} 件）") 
