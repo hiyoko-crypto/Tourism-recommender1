@@ -171,7 +171,7 @@ def main():
             admin_data = { 
                 "花道さん": { 
                     "name": "花道さん", 
-                    "age_group": "20代", 
+                    "age_group": "50代", 
                     "condition_pair": ("noaspect_all", "aspect_top5"), 
                     "selected_viewpoints": ["テーマ公園・テーマ施設"], 
                     "visited_spots": ["東京スカイツリー", "東京ソラマチ", "明治神宮", "ユニバーサル・スタジオ・ジャパン（USJ）", "原爆ドーム"], 
@@ -179,7 +179,7 @@ def main():
                 }, 
                 "太郎さん": { 
                     "name": "太郎さん", 
-                    "age_group": "30代", 
+                    "age_group": "20代", 
                     "condition_pair": ("aspect_all", "aspect_top5"), 
                     "selected_viewpoints": ["滝", "海岸・岬", "岩石・洞窟", "集落・街", "庭園・公園", "建造物", "テーマ公園・テーマ施設", "温泉", "食" ],
                     "visited_spots": ["城崎温泉の町並み", "城崎温泉", "嚴島神社", "出雲大社", "おもちゃ王国"], 
@@ -187,7 +187,7 @@ def main():
                 }, 
                 "花子さん": { 
                     "name": "花子さん", 
-                    "age_group": "20代", 
+                    "age_group": "50代", 
                     "condition_pair": ("noaspect_all", "aspect_all"), 
                     "selected_viewpoints": ["テーマ公園・テーマ施設"], 
                     "visited_spots": ["東京スカイツリー", "お台場", "ユニバーサル・スタジオ・ジャパン（USJ）", "錦帯橋", "しまなみ海道"], 
