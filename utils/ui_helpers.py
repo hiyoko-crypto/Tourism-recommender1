@@ -24,6 +24,15 @@ def overall_eval_ui(label, dfA):
     st.markdown("---")
     return sat, favor
 
+def show_ab_tables_aspect(dfA, dfB, titleA="好みリスト A", titleB="好みリスト B"):
+    colA, colB = st.columns(2)
+    with colA:
+        st.markdown(f"### {titleA}")
+        st.table(dfA)
+    with colB:
+        st.markdown(f"### {titleB}")
+        st.table(dfB)
+
 def show_aspect_eval(label, user_pref_df, selected_viewpoints):
     st.markdown(f"## {label} の観点スコア")
 
