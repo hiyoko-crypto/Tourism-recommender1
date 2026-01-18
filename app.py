@@ -304,54 +304,53 @@ def main():
                             with st.expander("続きを見る"):
                                 for line in lines[3:]:
                                     st.write(line)
-            # -----------------------------
-            # 行って良かった観光地（検索）
-            # -----------------------------
-            st.subheader("行って良かった観光地を選んでください")
-            
-            keyword = st.text_input("検索して絞り込む")
-            
-            spot_list = df["スポット"].tolist()
-            filtered_spots = [s for s in spot_list if keyword.lower() in s.lower()]
-            
-            visited_spots = []
-            spot_feedback = {}
-            
-            with st.expander("観光地一覧を開く"):
-                for spot in filtered_spots:
-                    checked = st.checkbox(spot, key=f"spot_search_{spot}")
+        # -----------------------------
+        # 行って良かった観光地（検索）
+        # -----------------------------
+        st.subheader("行って良かった観光地を選んでください")
+        
+        keyword = st.text_input("検索して絞り込む")
+        
+        spot_list = df["スポット"].tolist()
+        filtered_spots = [s for s in spot_list if keyword.lower() in s.lower()]
+        
+        visited_spots = []
+        spot_feedback = {}
+        
+        with st.expander("観光地一覧を開く"):
+            for spot in filtered_spots:
+                checked = st.checkbox(spot, key=f"spot_search_{spot}")
+                if checked:
+                    visited_spots.append(spot)
+        
+                    viewpoints = st.multiselect(
+                        f"{spot} で良かった観点（1つ以上選択してください）",
+                        viewpoint_list,
+                        key=f"viewpoints_search_{spot}"
+                    )
+        
+                    spot_feedback[spot] = {"viewpoints": viewpoints}
+        
+        
+        # -----------------------------
+        # 行って良かった観光地（地域別）
+        # -----------------------------
+        st.subheader("地域別の観光地から選ぶ")
+        
+        for region, spots in spot_lists.items():
+            with st.expander(region):
+                for spot in spots:
+                    checked = st.checkbox(spot, key=f"spot_region_{region}_{spot}")
                     if checked:
                         visited_spots.append(spot)
-            
+        
                         viewpoints = st.multiselect(
                             f"{spot} で良かった観点（1つ以上選択してください）",
                             viewpoint_list,
-                            key=f"viewpoints_search_{spot}"
+                            key=f"viewpoints_region_{spot}"
                         )
-            
+        
                         spot_feedback[spot] = {"viewpoints": viewpoints}
-            
-            
-            # -----------------------------
-            # 行って良かった観光地（地域別）
-            # -----------------------------
-            st.subheader("地域別の観光地から選ぶ")
-            
-            for region, spots in spot_lists.items():
-                with st.expander(region):
-                    for spot in spots:
-                        checked = st.checkbox(spot, key=f"spot_region_{region}_{spot}")
-                        if checked:
-                            visited_spots.append(spot)
-            
-                            viewpoints = st.multiselect(
-                                f"{spot} で良かった観点（1つ以上選択してください）",
-                                viewpoint_list,
-                                key=f"viewpoints_region_{spot}"
-                            )
-            
-                            spot_feedback[spot] = {"viewpoints": viewpoints}
-
         # 右上に選択数を表示
         col_left, col_right = st.columns([1, 1])
         with col_right:
