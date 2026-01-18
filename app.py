@@ -220,7 +220,7 @@ def main():
                                 for line in lines[3:]:
                                     st.write(line)
 
-        st.subheader("行ってよかった観光地を5件選んでください")
+        st.subheader("行ってよかった観光地を5つ選んでください")
 
         spot_feedback = {}
         visited_spots = []
