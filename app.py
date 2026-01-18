@@ -296,7 +296,7 @@ def main():
         spot_feedback = {}
         
         # 1ページあたりの件数
-        PAGE_SIZE = 20
+        PAGE_SIZE = 10
         
         for region, spots in spot_lists.items():
             with st.expander(region):
@@ -379,11 +379,6 @@ def main():
     # Step 2: A/B 推薦比較 + 全観光地評価
     # =====================
     if st.session_state.step == 2:
-        st.markdown("""
-            <script>
-                window.parent.document.querySelector('main').scrollTo(0, 0);
-            </script>
-        """, unsafe_allow_html=True)
         st.subheader("おすすめ観光地の比較")
         st.markdown("### これから 2つのおすすめリスト（A と B） を表示します。どちらが あなたの好みに合っているか を直感的に選んでください。")
     
@@ -457,7 +452,7 @@ def main():
         # ============================
     
         st.subheader("以下の観光地に行ったことがありますか？")
-        st.caption("観光地をクリックすると、その場所の特徴や、じゃらんの口コミページへのリンクが表示されます。気になる観光地は、お調べいただいても構いません。")
+        st.caption("観光地名をクリックすると、その場所の特徴や口コミページが見られます。気になる観光地は、お調べいただいても構いません。")
     
         # --- A と B のスポットを統合（重複除去） ---
         spots_A = list(dfA["スポット"])
@@ -545,12 +540,7 @@ def main():
         )
 
         ab_why = st.text_area(
-            "上のように判断した理由を教えてください。できれば、判断の決め手になった 観光地名 を挙げてください。",
-            height=150,
-        )
-    
-        ab_comment = st.text_area(
-            "A/B 比較についてコメントがあれば自由にお書きください",
+            "そのように感じた理由を教えてください。もしあれば、決め手になった観光地名も書いていただけると助かります。",
             height=150,
         )
     
@@ -563,7 +553,6 @@ def main():
         
             st.session_state.ab_choice = ab_choice
             st.session_state.ab_why = ab_why
-            st.session_state.ab_comment = ab_comment
 
             st.session_state.dfA = dfA
             st.session_state.dfB = dfB
@@ -652,7 +641,6 @@ def main():
 
                 "ab_choice": st.session_state.ab_choice, 
                 "ab_why": st.session_state.ab_why,
-                "ab_comment": st.session_state.ab_comment,
 
                 "match_compare": match_compare,
                 "match_why": match_why,
