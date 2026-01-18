@@ -486,8 +486,8 @@ def main():
         st.markdown("---")
         st.markdown("## A/B の観点スコアの比較")
 
-        dfA = st.session_state.dfA
-        dfB = st.session_state.dfB
+        prefA = st.session_state.user_pref_A
+        prefB = st.session_state.user_pref_B
         show_ab_tables(dfA, dfB)
 
         match_compare = st.radio(
