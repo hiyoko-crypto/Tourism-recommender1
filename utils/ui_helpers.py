@@ -32,7 +32,8 @@ def show_aspect_eval(label, user_pref_df, selected_viewpoints):
     df["元々興味あり"] = df["観点"].apply(
         lambda v: "◯" if v in selected_viewpoints else ""
     )
-    st.table(df[["観点", "スコア", "元々興味あり"]])
+    df["あなたの好み"] = df["観点"]
+    st.table(df[["あなたの好み", "スコア", "元々興味あり"]])
 
     match = st.slider(f"{label} はあなた自身の認識と一致していると感じましたか？", 1, 5, 3)
     accept = st.slider(f"{label} で表示された観点の中に、意外だと感じたものはありましたか？", 1, 5, 3)
