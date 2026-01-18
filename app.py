@@ -579,8 +579,10 @@ def main():
         prefB["元々興味あり"] = prefB["興味あり"].apply(lambda x: "〇" if x != 0 else "")
         prefA["あなたの好み"] = prefA["観点"]
         prefB["あなたの好み"] = prefB["観点"]
-        prefA = prefA[["あなたの好み", "元々興味あり"]]
-        prefB = prefB[["あなたの好み", "元々興味あり"]]
+        prefA["スコア"] = prefA["総合スコア"]
+        prefB["スコア"] = prefB["総合スコア"]
+        prefA = prefA[["あなたの好み", "スコア", "元々興味あり"]]
+        prefB = prefB[["あなたの好み", "スコア", "元々興味あり"]]
         show_ab_tables_aspect(prefA, prefB)
 
         match_compare = st.radio(
