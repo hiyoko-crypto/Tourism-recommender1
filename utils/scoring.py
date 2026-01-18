@@ -142,10 +142,10 @@ def recommend_spots(
 
     # --- 観点集合 ---
     if condition == "aspect_top5":
-        V = set(weights.sort_values(ascending=False).head(top_k).index)
+        V = set(weights.sort_values(ascending=False).head(5).index)
     elif condition == "aspect_exclude_interest_top5":
         weights_wo_interest = weights.drop(selected_viewpoints, errors="ignore")
-        V = set(weights_wo_interest.sort_values(ascending=False).head(top_k).index)
+        V = set(weights_wo_interest.sort_values(ascending=False).head(5).index)
     elif condition == "aspect_all":
         V = set(weights.index)
     elif condition == "noaspect_all":
