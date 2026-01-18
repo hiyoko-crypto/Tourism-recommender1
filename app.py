@@ -259,8 +259,6 @@ def main():
         
             if i == 0:
                 st.markdown("### 自然資源")
-            elif i == 9:
-                st.markdown("### 人文資源")
         
             # i=9 のときだけ特別処理
             if i == 9:
@@ -281,6 +279,7 @@ def main():
                         with st.expander("続きを見る"):
                             for line in lines[3:]:
                                 st.write(line)
+                                st.markdown("### 人文資源")
         
                 # cols[1], cols[2] は空白のまま
                 continue  # ← 通常処理に戻らないようにする
