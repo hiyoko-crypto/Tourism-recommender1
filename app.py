@@ -418,11 +418,11 @@ def main():
         # ============================ 
         # A の全体評価 
         # ============================ 
-        sat_A, discover_A, favor_A = overall_eval_ui("A", dfA)
+        sat_A, favor_A = overall_eval_ui("A", dfA)
         # ============================ 
         # B の全体評価 
         # ============================ 
-        sat_B, discover_B, favor_B = overall_eval_ui("B", dfB)
+        sat_B, favor_B = overall_eval_ui("B", dfB)
         # ============================
         # A/B 比較
         # ============================
@@ -449,11 +449,9 @@ def main():
     
         if st.button("次へ"):
             st.session_state.sat_A = sat_A
-            st.session_state.discover_A = discover_A
             st.session_state.favor_A = favor_A
         
             st.session_state.sat_B = sat_B
-            st.session_state.discover_B = discover_B
             st.session_state.favor_B = favor_B
         
             st.session_state.ab_choice = ab_choice
@@ -565,12 +563,10 @@ def main():
 
                 # --- A の全体評価 --- 
                 "sat_A": st.session_state.sat_A, 
-                "discover_A": st.session_state.discover_A, 
                 "favor_A": st.session_state.favor_A, 
                 
                 # --- B の全体評価 --- 
                 "sat_B": st.session_state.sat_B, 
-                "discover_B": st.session_state.discover_B, 
                 "favor_B": st.session_state.favor_B,
                 
                 "spot_questions": json.dumps(st.session_state.spot_questions, ensure_ascii=False),
