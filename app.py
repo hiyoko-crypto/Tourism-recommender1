@@ -198,6 +198,7 @@ def main():
 
             if st.button("このユーザーで開始"): 
                 # Step1 をスキップして Step2 へ 
+                st.session_state.name = selected_user["name"]
                 st.session_state.selected_viewpoints = selected_user["selected_viewpoints"] 
                 st.session_state.visited_spots = selected_user["visited_spots"] 
                 st.session_state.spot_feedback = selected_user["spot_feedback"] 
