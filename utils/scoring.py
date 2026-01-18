@@ -135,6 +135,14 @@ def recommend_spots(
     for col in viewpoint_cols:
         df_norm[col] = minmax(df_norm[col])
 
+    # ============================ 
+    # ② 観点順位の逆数（1/rank）を計算 
+    # ============================ 
+    rank_df = df_norm.copy() 
+    for idx, row in df_norm.iterrows():
+        ranks = row[viewpoint_cols].rank(method="first", ascending=False)
+        rank_df.loc[idx, viewpoint_cols] = 1.0 / ranks
+    
     # --- ユーザ嗜好重み ---
     weights = user_pref_df.set_index("観点")["総合スコア"]
 
@@ -159,11 +167,15 @@ def recommend_spots(
     # --- スコア計算（元コードそのまま） ---
     if condition != "noaspect_all":
         results = []
-        for _, row in df_norm.iterrows():
+        for idx, row in df_norm.iterrows():
             spot = row["スポット"]
             score = 0.0
             for v in V:
-                score += weights[v] * row[v]
+                base = row[v]
+                rank_factor = rank_df.loc[idx, v]
+                weight = weights[v]
+                
+                score += weight * base * rank_factor
             results.append({"スポット": spot, "スコア": score})
 
         df_all = pd.DataFrame(results).sort_values("スコア", ascending=False)
