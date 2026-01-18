@@ -505,15 +505,6 @@ def main():
             ["A の方が意外", "どちらかというと A", "どちらとも言えない", "どちらかというと B", "B の方が意外"], 
             horizontal=True,
         )
-        friendly_compare = st.radio(
-            "どちらの観点リストの方が、それぞれの観光地が推薦された理由を理解しやすかったですか？",
-            ["A の方が理解しやすい", "どちらかというと A", "どちらとも言えない", "どちらかというと B", "B の方が理解しやすい"], 
-            horizontal=True,
-        )
-
-        dfA = st.session_state.dfA
-        dfB = st.session_state.dfB
-        show_ab_tables(dfA, dfB)
 
         aspect_comment_compare = st.text_area(
             "A, B両方の「観点リスト」について、良いと感じた点や違和感を覚えた点があれば自由にお書きください。",
@@ -555,7 +546,6 @@ def main():
 
                 "match_compare": match_compare,
                 "accept_compare": accept_compare,
-                "friendly_compare": friendly_compare,
                 "aspect_comment_compare": aspect_comment_compare,
 
                 "timestamp": datetime.now().isoformat()
