@@ -273,14 +273,13 @@ def main():
             for j, col in enumerate(cols):
                 if i + j < len(viewpoint_list):
                     vp = viewpoint_list[i + j]
-                    with cols:
-
-                        # ① チェックボックスは外に出す
+                    with col:
+                        # ① チェックボックスは外に出す（常に見える）
                         checked = st.checkbox(vp, key=f"vp_{vp}")
                         if checked:
                             selected_viewpoints.append(vp)
                     
-                        # ② 説明だけ expander に入れる
+                        # ② 説明だけ expander に入れる（必要な人だけ開く）
                         with st.expander("説明を見る"):
                             desc = viewpoint_descriptions.get(vp, f"{vp} の説明文は準備中です")
                             lines = desc.splitlines()
