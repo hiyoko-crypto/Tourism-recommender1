@@ -297,46 +297,30 @@ def main():
         visited_spots = []
         spot_feedback = {}
         
-        PAGE_SIZE = 10
-        
+        # 地域別の観光地一覧を横2列で表示
         for region, spots in spot_lists.items():
             with st.expander(region):
         
-                total = len(spots)
-                pages = (total + PAGE_SIZE - 1) // PAGE_SIZE
-        
-                page_key = f"page_{region}"
-                if page_key not in st.session_state:
-                    st.session_state[page_key] = 0
-        
-                page = st.session_state[page_key]
-        
-                start = page * PAGE_SIZE
-                end = min(start + PAGE_SIZE, total)
-                current_spots = spots[start:end]
-        
+                # 横2列レイアウト
                 cols = st.columns(2)
         
-                for idx, spot in enumerate(current_spots):
-                    col = cols[idx % 2]
+                for idx, spot in enumerate(spots):
+                    col = cols[idx % 2]   # 偶数→左列、奇数→右列
+        
                     with col:
                         checked = st.checkbox(spot, key=f"spot_{region}_{spot}")
                         if checked:
                             visited_spots.append(spot)
         
                             viewpoints = st.multiselect(
-                                f"{spot} で良かったポイント（1つ以上選択）",
+                                f"{spot} で良かった観点（1つ以上選択してください）",
                                 viewpoint_list,
                                 key=f"viewpoints_{spot}"
                             )
         
-                            spot_feedback[spot] = {"viewpoints": viewpoints}
-        
-                # 次ページボタン
-                if end < total:
-                    if st.button("続きを見る", key=f"next_{region}"):
-                        st.session_state[page_key] += 1
-                        st.rerun()
+                            spot_feedback[spot] = {
+                                "viewpoints": viewpoints
+                            }
                 
         # 右上に選択数を表示
         col_left, col_right = st.columns([1, 1])
