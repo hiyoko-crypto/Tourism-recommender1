@@ -336,7 +336,7 @@ def main():
                 if end < total:
                     if st.button("続きを見る", key=f"next_{region}"):
                         st.session_state[page_key] += 1
-                        st.experimental_rerun()
+                        st.rerun()
                 
         # 右上に選択数を表示
         col_left, col_right = st.columns([1, 1])
