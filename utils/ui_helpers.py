@@ -19,8 +19,8 @@ def overall_eval_ui(label, dfA):
     st.subheader(f"観光地リスト {label} の全体評価") 
     st.markdown("---")
     st.table(dfA)
-    sat = st.slider(f"リスト{label} にどのくらい満足しましたか？", 1, 5, 3)
-    favor = st.slider(f"リスト{label} は、あなたの好みに合っていましたか？", 1, 5, 3)
+    sat = st.slider(f"{label} の観光地推薦リストにどのくらい満足しましたか？", 1, 5, 3)
+    favor = st.slider(f"{label} の観光地推薦リストは、あなたの好みに合っていましたか？", 1, 5, 3)
     st.markdown("---")
     return sat, favor
 
