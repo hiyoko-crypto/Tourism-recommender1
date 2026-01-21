@@ -230,9 +230,9 @@ def main():
     # =====================
     if st.session_state.step == 1:
 
-        st.subheader("あなたが旅行先を選ぶときに重要視するポイントを教えてください。（1つ以上）")
+        st.subheader("あなたが旅行先を選ぶときに重要視するポイントを以下22個から教えてください。（1つ以上）")
         st.caption("（例：自然が好き、歴史が好き、食べ歩きが好き など）")
-        st.caption("意味が分からない観点だけ、必要に応じて説明を確認してください。")
+        st.caption("意味が分からないものだけ、必要に応じて説明を確認してください。")
 
         selected_viewpoints = []
 
@@ -313,7 +313,7 @@ def main():
                             visited_spots.append(spot)
         
                             viewpoints = st.multiselect(
-                                f"{spot} で良かった観点（1つ以上選択してください）",
+                                f"{spot} で良かったポイント（1つ以上選択してください）",
                                 viewpoint_list,
                                 key=f"viewpoints_{spot}"
                             )
@@ -334,7 +334,7 @@ def main():
 
         if st.button("次へ"):
             if len(selected_viewpoints) == 0: 
-                st.error("興味のある観点を少なくとも 1 つ選んでください。") 
+                st.error("興味のあるポイントを少なくとも 1 つ選んでください。") 
                 st.stop()
 
             if len(visited_spots) != 5:
@@ -343,7 +343,7 @@ def main():
 
             for spot in visited_spots: 
                 if len(spot_feedback[spot]["viewpoints"]) == 0: 
-                    st.error(f"{spot} の良かった観点を少なくとも1つ選んでください。") 
+                    st.error(f"{spot} の良かったポイントを少なくとも1つ選んでください。") 
                     st.stop()
 
             st.session_state.selected_viewpoints = selected_viewpoints
@@ -359,7 +359,7 @@ def main():
     # =====================
     if st.session_state.step == 2:
         st.subheader("おすすめ観光地の比較")
-        st.markdown("### これから 2つのおすすめリスト（A と B） を表示します。どちらが あなたの好みに合っているか を直感的に選んでください。")
+        st.markdown("### これから 2つのおすすめリスト（A と B） を表示します。")
     
         # --- 条件ペアを取り出す ---
         condA, condB = st.session_state.condition_pair
