@@ -91,7 +91,7 @@ if "mode" not in st.session_state:
 # ログ保存
 # =====================
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+from oauth2client.service_account import ServiceAccountCredentialsあああ
 
 def save_log(data):
     # Google Sheets 認証
