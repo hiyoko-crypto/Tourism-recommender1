@@ -211,7 +211,7 @@ def main():
             st.stop()
         
         st.subheader("参加者情報の入力")
-        name = st.text_input("お名前（ニックネーム可）を入力してください")
+        name = st.text_input("お名前（ニックネーム可）を入力してください")aaaa
         age_group = st.selectbox( "年代を選択してください", ["10代", "20代", "30代", "40代", "50代", "60代以上"] )
         if st.checkbox("内容を理解し、同意します"):
             if st.button("実験を開始する"):
