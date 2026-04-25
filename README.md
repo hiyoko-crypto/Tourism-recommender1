@@ -28,7 +28,6 @@ python app.py
 
 ## データ
 - 観光地データ：じゃらんの口コミデータを使用
-- 件数：約〇件/観光地
 
 ## 使用技術
 - Python
@@ -37,9 +36,9 @@ python app.py
 
 ## ディレクトリ構成
 .
-├── app.py
-├── utils/
-├── data/
+├── app.py\\
+├── utils/\\
+├── data/\\
 └── README.md
 
 ## 実験
