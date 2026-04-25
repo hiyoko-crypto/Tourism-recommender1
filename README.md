@@ -35,10 +35,9 @@ python app.py
 - Streamlit
 
 ## ディレクトリ構成
-.
 ├── app.py\
 ├── utils/\
-├── data/\\
+├── data/\
 └── README.md
 
 ## 実験
