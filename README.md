@@ -22,7 +22,7 @@
 pip install -r requirements.txt
 python app.py
 ```
-なお，実際の実験はstreamlit cloudで実験した．
+なお，実際の実験はStreamlitで実験した．
 
 ---
 
