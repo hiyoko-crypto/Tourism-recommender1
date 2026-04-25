@@ -36,8 +36,8 @@ python app.py
 
 ## ディレクトリ構成
 .
-├── app.py\\
-├── utils/\\
+├── app.py\
+├── utils/\
 ├── data/\\
 └── README.md
 
